@@ -17,7 +17,7 @@ interface Order {
   order_number: string;
   full_name: string;
   email: string;
-  total_amount: number;
+  total_amount: string | number;
   status: string;
   payment_status: string;
   created_at: string;
@@ -27,7 +27,7 @@ export default function Orders() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [pagination, setPagination] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [status, setStatus] = useState<string>("");
+  const [status, setStatus] = useState<string>("all");
   const [page, setPage] = useState(1);
 
   useEffect(() => {
@@ -39,7 +39,7 @@ export default function Orders() {
     const { data, error } = await ordersApi.getAll({ 
       page, 
       limit: 20, 
-      ...(status && { status })
+      ...(status && status !== "all" && { status })
     });
 
     if (error) {
@@ -62,7 +62,7 @@ export default function Orders() {
     {
       key: "total_amount",
       label: "Amount",
-      render: (value: number) => `$${Number(value).toFixed(2)}`,
+      render: (value: string | number) => `$${Number(value).toFixed(2)}`,
     },
     {
       key: "status",
@@ -114,7 +114,7 @@ export default function Orders() {
             <SelectValue placeholder="Filter by status" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="">All Statuses</SelectItem>
+            <SelectItem value="all">All Statuses</SelectItem>
             <SelectItem value="pending">Pending</SelectItem>
             <SelectItem value="paid">Paid</SelectItem>
             <SelectItem value="shipped">Shipped</SelectItem>

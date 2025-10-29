@@ -49,7 +49,13 @@ export default function Brands() {
     }
 
     if (data) {
-      setBrands((data as any) || []);
+      // Handle both array response and object with brands property
+      const brandsData = Array.isArray(data) 
+        ? data 
+        : (data as any).brands || (data as any).data || [];
+      setBrands(brandsData);
+    } else {
+      setBrands([]);
     }
     setLoading(false);
   };

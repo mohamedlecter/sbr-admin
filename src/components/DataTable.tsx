@@ -36,6 +36,9 @@ export function DataTable<T extends { id?: string }>({
   onPageChange,
   emptyMessage = "No data available",
 }: DataTableProps<T>) {
+  // Ensure data is always an array
+  const safeData = Array.isArray(data) ? data : [];
+
   return (
     <div className="space-y-4">
       <div className="rounded-lg border border-border bg-card">
@@ -50,7 +53,7 @@ export function DataTable<T extends { id?: string }>({
             </TableRow>
           </TableHeader>
           <TableBody>
-            {data.length === 0 ? (
+            {safeData.length === 0 ? (
               <TableRow>
                 <TableCell
                   colSpan={columns.length}
@@ -60,7 +63,7 @@ export function DataTable<T extends { id?: string }>({
                 </TableCell>
               </TableRow>
             ) : (
-              data.map((item, index) => (
+              safeData.map((item, index) => (
                 <TableRow
                   key={item.id || index}
                   className="border-b border-border/50 transition-colors hover:bg-muted/50"

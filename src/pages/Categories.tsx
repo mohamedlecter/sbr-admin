@@ -50,7 +50,13 @@ export default function Categories() {
     }
 
     if (data) {
-      setCategories((data as any) || []);
+      // Handle both array response and object with categories property
+      const categoriesData = Array.isArray(data) 
+        ? data 
+        : (data as any).categories || (data as any).data || [];
+      setCategories(categoriesData);
+    } else {
+      setCategories([]);
     }
     setLoading(false);
   };

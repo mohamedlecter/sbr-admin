@@ -16,7 +16,7 @@ interface RecentOrder {
   id: string;
   order_number: string;
   full_name: string;
-  total_amount: number;
+  total_amount: string | number;
   status: string;
   created_at: string;
 }
@@ -53,7 +53,7 @@ export default function Dashboard() {
     {
       key: "total_amount",
       label: "Amount",
-      render: (value: number) => `$${value.toFixed(2)}`,
+      render: (value: string | number) => `$${Number(value).toFixed(2)}`,
     },
     {
       key: "status",
@@ -109,7 +109,7 @@ export default function Dashboard() {
         />
         <StatCard
           title="Revenue"
-          value={`$${(stats?.total_revenue || 0).toFixed(2)}`}
+          value={`$${Number(stats?.total_revenue || 0).toFixed(2)}`}
           icon={DollarSign}
         />
         <StatCard

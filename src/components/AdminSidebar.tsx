@@ -41,7 +41,7 @@ export function AdminSidebar() {
     <Sidebar className="border-r border-sidebar-border">
       <div className="flex h-16 items-center gap-3 border-b border-sidebar-border px-4">
         <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-primary">
-          <Bike className="h-6 w-6 text-sidebar-primary-foreground" />
+          <img src="/logo.svg" alt="SBR Logo" className="h-10 w-10" />
         </div>
         {open && (
           <div>

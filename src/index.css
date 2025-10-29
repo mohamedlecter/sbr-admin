@@ -8,63 +8,65 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    --background: 222 47% 11%;
-    --foreground: 210 40% 98%;
+    /* Light / bright theme: white background with red (#CE0014) as primary */
+    --background: 0 0% 100%; /* white */
+    --foreground: 222 10% 12%; /* dark text for readability */
 
-    --card: 217 33% 17%;
-    --card-foreground: 210 40% 98%;
+    --card: 0 0% 98%;
+    --card-foreground: 222 10% 12%;
 
-    --popover: 224 71% 4%;
-    --popover-foreground: 210 40% 98%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 10% 12%;
 
-    --primary: 221 83% 53%;
-    --primary-foreground: 210 40% 98%;
+    /* Primary = #CE0014 -> approx HSL(354 100% 40%) */
+    --primary: 354 100% 40%;
+    --primary-foreground: 0 0% 100%; /* white text on red */
 
-    --secondary: 217 33% 22%;
-    --secondary-foreground: 210 40% 98%;
+    --secondary: 210 8% 95%;
+    --secondary-foreground: 222 10% 12%;
 
-    --muted: 215 28% 17%;
-    --muted-foreground: 218 11% 65%;
+    --muted: 210 10% 92%;
+    --muted-foreground: 222 10% 45%;
 
-    --accent: 25 95% 53%;
-    --accent-foreground: 222 47% 11%;
+    --accent: 354 90% 60%;
+    --accent-foreground: 0 0% 100%;
 
-    --destructive: 0 84% 60%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive: 354 100% 45%;
+    --destructive-foreground: 0 0% 100%;
 
     --success: 142 71% 45%;
-    --success-foreground: 210 40% 98%;
+    --success-foreground: 0 0% 100%;
 
     --warning: 38 92% 50%;
-    --warning-foreground: 222 47% 11%;
+    --warning-foreground: 222 10% 12%;
 
-    --border: 215 28% 22%;
-    --input: 215 28% 22%;
-    --ring: 221 83% 53%;
+    --border: 210 10% 88%;
+    --input: 210 10% 88%;
+    --ring: 354 100% 40%;
 
     --radius: 0.75rem;
 
-    --sidebar-background: 224 71% 4%;
-    --sidebar-foreground: 210 40% 98%;
-    --sidebar-primary: 221 83% 53%;
-    --sidebar-primary-foreground: 210 40% 98%;
-    --sidebar-accent: 217 33% 17%;
-    --sidebar-accent-foreground: 210 40% 98%;
-    --sidebar-border: 215 28% 17%;
-    --sidebar-ring: 221 83% 53%;
+    --sidebar-background: 0 0% 100%;
+    --sidebar-foreground: 222 10% 12%;
+    --sidebar-primary: 354 100% 40%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 210 8% 95%;
+    --sidebar-accent-foreground: 222 10% 12%;
+    --sidebar-border: 210 10% 88%;
+    --sidebar-ring: 354 100% 40%;
 
-    --chart-1: 221 83% 53%;
+    --chart-1: 354 100% 40%;
     --chart-2: 25 95% 53%;
     --chart-3: 142 71% 45%;
     --chart-4: 280 80% 60%;
     --chart-5: 340 82% 52%;
 
     /* Gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(221 83% 53%), hsl(240 100% 65%));
-    --gradient-accent: linear-gradient(135deg, hsl(25 95% 53%), hsl(35 100% 50%));
-    --gradient-mesh: radial-gradient(at 40% 20%, hsl(221 83% 53% / 0.3) 0px, transparent 50%),
-                      radial-gradient(at 80% 0%, hsl(25 95% 53% / 0.2) 0px, transparent 50%),
-                      radial-gradient(at 0% 50%, hsl(240 100% 65% / 0.15) 0px, transparent 50%);
+  --gradient-primary: linear-gradient(135deg, hsl(354 100% 40%), hsl(348 90% 60%));
+  --gradient-accent: linear-gradient(135deg, hsl(354 90% 60%), hsl(16 100% 60%));
+  --gradient-mesh: radial-gradient(at 40% 20%, hsl(354 100% 40% / 0.18) 0px, transparent 50%),
+            radial-gradient(at 80% 0%, hsl(25 95% 53% / 0.12) 0px, transparent 50%),
+            radial-gradient(at 0% 50%, hsl(348 90% 60% / 0.08) 0px, transparent 50%);
 
     /* Shadows */
     --shadow-sm: 0 1px 2px 0 hsl(0 0% 0% / 0.05);

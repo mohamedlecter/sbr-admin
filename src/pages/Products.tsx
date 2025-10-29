@@ -1,9 +1,12 @@
 import { useEffect, useState } from "react";
 import { DataTable } from "@/components/DataTable";
-import { productsApi } from "@/lib/api";
+import { productsApi, partsApi, brandsApi, categoriesApi } from "@/lib/api";
 import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
-import { Search } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Plus, Loader2, Search } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -11,17 +14,34 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 
 interface Product {
   id: string;
   name: string;
   type: string;
-  price: number;
-  merch_price: number;
+  price: string | number;
+  merch_price: string | number;
   quantity: number;
   is_active: boolean;
   brand_name: string;
   category_name: string;
+}
+
+interface Brand {
+  id: string;
+  name: string;
+}
+
+interface Category {
+  id: string;
+  name: string;
 }
 
 export default function Products() {
@@ -29,12 +49,61 @@ export default function Products() {
   const [pagination, setPagination] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
-  const [type, setType] = useState<string>("");
+  const [type, setType] = useState<string>("all");
   const [page, setPage] = useState(1);
+  const [isPartDialogOpen, setIsPartDialogOpen] = useState(false);
+  const [brands, setBrands] = useState<Brand[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [creatingPart, setCreatingPart] = useState(false);
+  const [partFormData, setPartFormData] = useState({
+    brand_id: "",
+    category_id: "",
+    name: "",
+    description: "",
+    original_price: "",
+    selling_price: "",
+    quantity: "",
+    sku: "",
+    weight: "",
+    images: "",
+    color_options: "",
+    compatibility: "",
+  });
+  const [newBrandName, setNewBrandName] = useState("");
+  const [newBrandDescription, setNewBrandDescription] = useState("");
+  const [newCategoryName, setNewCategoryName] = useState("");
+  const [newCategoryDescription, setNewCategoryDescription] = useState("");
 
   useEffect(() => {
     loadProducts();
   }, [page, search, type]);
+
+  useEffect(() => {
+    if (isPartDialogOpen) {
+      loadBrandsAndCategories();
+    }
+  }, [isPartDialogOpen]);
+
+  const loadBrandsAndCategories = async () => {
+    const [brandsResult, categoriesResult] = await Promise.all([
+      brandsApi.getAll(),
+      categoriesApi.getAll(),
+    ]);
+
+    if (brandsResult.data) {
+      const brandsData = Array.isArray(brandsResult.data)
+        ? brandsResult.data
+        : (brandsResult.data as any).brands || (brandsResult.data as any).data || [];
+      setBrands(brandsData);
+    }
+
+    if (categoriesResult.data) {
+      const categoriesData = Array.isArray(categoriesResult.data)
+        ? categoriesResult.data
+        : (categoriesResult.data as any).categories || (categoriesResult.data as any).data || [];
+      setCategories(categoriesData);
+    }
+  };
 
   const loadProducts = async () => {
     setLoading(true);
@@ -42,7 +111,7 @@ export default function Products() {
       page, 
       limit: 20, 
       search,
-      ...(type && { type })
+      ...(type && type !== "all" && { type })
     });
 
     if (error) {
@@ -56,6 +125,172 @@ export default function Products() {
       setPagination((data as any).pagination);
     }
     setLoading(false);
+  };
+
+  const handlePartSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setCreatingPart(true);
+
+    try {
+      let brandId = partFormData.brand_id;
+      let categoryId = partFormData.category_id;
+
+      // Create brand if "new" is selected
+      if (brandId === "new") {
+        if (!newBrandName.trim() || !newBrandDescription.trim()) {
+          toast.error("Brand name and description are required");
+          setCreatingPart(false);
+          return;
+        }
+        const { data: brandData, error: brandError } = await brandsApi.create({
+          name: newBrandName,
+          description: newBrandDescription,
+        });
+        if (brandError || !brandData) {
+          toast.error(brandError || "Failed to create brand");
+          setCreatingPart(false);
+          return;
+        }
+        // Extract ID from response - handle different response structures
+        // The apiRequest wraps responses, so brandData is the direct response from backend
+        let newBrandId = (brandData as any).id;
+        if (!newBrandId && (brandData as any).brand) {
+          newBrandId = (brandData as any).brand.id;
+        }
+        if (!newBrandId && (brandData as any).data) {
+          newBrandId = (brandData as any).data.id;
+        }
+        
+        if (!newBrandId) {
+          console.error("Brand creation response structure:", JSON.stringify(brandData, null, 2));
+          toast.error("Failed to get brand ID from response. Check console for details.");
+          setCreatingPart(false);
+          return;
+        }
+        brandId = newBrandId;
+        // Update form state to use the new brand ID
+        setPartFormData({ ...partFormData, brand_id: brandId });
+        setNewBrandName("");
+        setNewBrandDescription("");
+        toast.success("Brand created successfully");
+        await loadBrandsAndCategories();
+      }
+
+      // Create category if "new" is selected
+      if (categoryId === "new") {
+        if (!newCategoryName.trim() || !newCategoryDescription.trim()) {
+          toast.error("Category name and description are required");
+          setCreatingPart(false);
+          return;
+        }
+        const { data: categoryData, error: categoryError } = await categoriesApi.create({
+          name: newCategoryName,
+          description: newCategoryDescription,
+        });
+        if (categoryError || !categoryData) {
+          toast.error(categoryError || "Failed to create category");
+          setCreatingPart(false);
+          return;
+        }
+        // Extract ID from response - handle different response structures
+        // The apiRequest wraps responses, so categoryData is the direct response from backend
+        let newCategoryId = (categoryData as any).id;
+        if (!newCategoryId && (categoryData as any).category) {
+          newCategoryId = (categoryData as any).category.id;
+        }
+        if (!newCategoryId && (categoryData as any).data) {
+          newCategoryId = (categoryData as any).data.id;
+        }
+        
+        if (!newCategoryId) {
+          console.error("Category creation response structure:", JSON.stringify(categoryData, null, 2));
+          toast.error("Failed to get category ID from response. Check console for details.");
+          setCreatingPart(false);
+          return;
+        }
+        categoryId = newCategoryId;
+        // Update form state to use the new category ID
+        setPartFormData({ ...partFormData, category_id: categoryId });
+        setNewCategoryName("");
+        setNewCategoryDescription("");
+        toast.success("Category created successfully");
+        await loadBrandsAndCategories();
+      }
+
+      // Parse arrays from comma-separated strings
+      const images = partFormData.images
+        ? partFormData.images.split(",").map((img) => img.trim()).filter(Boolean)
+        : [];
+      const colorOptions = partFormData.color_options
+        ? partFormData.color_options.split(",").map((color) => color.trim()).filter(Boolean)
+        : [];
+      const compatibility = partFormData.compatibility
+        ? partFormData.compatibility.split(",").map((item) => item.trim()).filter(Boolean)
+        : [];
+
+      // Validate that we have valid UUIDs
+      if (!brandId || brandId === "new") {
+        toast.error("Invalid brand ID. Please select a brand.");
+        setCreatingPart(false);
+        return;
+      }
+      if (!categoryId || categoryId === "new") {
+        toast.error("Invalid category ID. Please select a category.");
+        setCreatingPart(false);
+        return;
+      }
+
+      // Create the part
+      const partData = {
+        brand_id: brandId,
+        category_id: categoryId,
+        name: partFormData.name,
+        description: partFormData.description || undefined,
+        original_price: parseFloat(partFormData.original_price),
+        selling_price: parseFloat(partFormData.selling_price),
+        quantity: parseInt(partFormData.quantity),
+        sku: partFormData.sku || undefined,
+        weight: partFormData.weight ? parseFloat(partFormData.weight) : undefined,
+        images: images.length > 0 ? images : undefined,
+        color_options: colorOptions.length > 0 ? colorOptions : undefined,
+        compatibility: compatibility.length > 0 ? compatibility : undefined,
+      };
+
+      const { error } = await partsApi.create(partData);
+
+      if (error) {
+        toast.error(error || "Failed to create part");
+        setCreatingPart(false);
+        return;
+      }
+
+      toast.success("Part created successfully");
+      setIsPartDialogOpen(false);
+      setPartFormData({
+        brand_id: "",
+        category_id: "",
+        name: "",
+        description: "",
+        original_price: "",
+        selling_price: "",
+        quantity: "",
+        sku: "",
+        weight: "",
+        images: "",
+        color_options: "",
+        compatibility: "",
+      });
+      setNewBrandName("");
+      setNewBrandDescription("");
+      setNewCategoryName("");
+      setNewCategoryDescription("");
+      loadProducts();
+    } catch (error) {
+      toast.error("An error occurred while creating the part");
+      console.error(error);
+    } finally {
+      setCreatingPart(false);
+    }
   };
 
   const productColumns = [
@@ -76,7 +311,7 @@ export default function Products() {
     {
       key: "price",
       label: "Price",
-      render: (value: number, item: Product) => 
+      render: (value: string | number, item: Product) => 
         `$${Number(item.type === "part" ? value : item.merch_price).toFixed(2)}`,
     },
     { key: "quantity", label: "Stock" },
@@ -95,9 +330,251 @@ export default function Products() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold text-foreground">Products</h1>
-        <p className="text-muted-foreground">Manage parts and merchandise</p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold text-foreground">Products</h1>
+          <p className="text-muted-foreground">Manage parts and merchandise</p>
+        </div>
+        <Dialog open={isPartDialogOpen} onOpenChange={setIsPartDialogOpen}>
+          <DialogTrigger asChild>
+            <Button className="bg-gradient-primary">
+              <Plus className="mr-2 h-4 w-4" />
+              Create Part
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>Create New Part</DialogTitle>
+            </DialogHeader>
+            <form onSubmit={handlePartSubmit} className="space-y-4">
+              <div>
+                <Label htmlFor="brand_id">Brand *</Label>
+                <Select
+                  value={partFormData.brand_id}
+                  onValueChange={(value) =>
+                    setPartFormData({ ...partFormData, brand_id: value })
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select brand" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="new">Create New Brand</SelectItem>
+                    {brands.map((brand) => (
+                      <SelectItem key={brand.id} value={brand.id}>
+                        {brand.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                {partFormData.brand_id === "new" && (
+                  <>
+                  <Input
+                    placeholder="Enter brand name"
+                    value={newBrandName}
+                    onChange={(e) => setNewBrandName(e.target.value)}
+                    className="mt-2"
+                    required
+                  />
+                <Input
+                  placeholder="Create brnad description"
+                  value={newBrandDescription}
+                  onChange={(e) => setNewBrandDescription(e.target.value)}
+                  className="mt-2"
+                  required
+                  />
+                  </>
+  
+                )}
+              </div>
+
+              <div>
+                <Label htmlFor="category_id">Category *</Label>
+                <Select
+                  value={partFormData.category_id}
+                  onValueChange={(value) =>
+                    setPartFormData({ ...partFormData, category_id: value })
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select category" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="new">Create New Category</SelectItem>
+                    {categories.map((category) => (
+                      <SelectItem key={category.id} value={category.id}>
+                        {category.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                {partFormData.category_id === "new" && (
+                <>
+                <Input
+                    placeholder="Enter category name"
+                    value={newCategoryName}
+                    onChange={(e) => setNewCategoryName(e.target.value)}
+                    className="mt-2"
+                    required
+                  />
+                  <Input
+                    placeholder="Enter category description"
+                    value={newCategoryDescription}
+                    onChange={(e) => setNewCategoryDescription(e.target.value)}
+                    className="mt-2"
+                    required
+                  />
+                  </>
+                )}
+              </div>
+
+              <div>
+                <Label htmlFor="name">Part Name *</Label>
+                <Input
+                  id="name"
+                  value={partFormData.name}
+                  onChange={(e) =>
+                    setPartFormData({ ...partFormData, name: e.target.value })
+                  }
+                  required
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="description">Description</Label>
+                <Textarea
+                  id="description"
+                  value={partFormData.description}
+                  onChange={(e) =>
+                    setPartFormData({ ...partFormData, description: e.target.value })
+                  }
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="original_price">Original Price *</Label>
+                  <Input
+                    id="original_price"
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    value={partFormData.original_price}
+                    onChange={(e) =>
+                      setPartFormData({ ...partFormData, original_price: e.target.value })
+                    }
+                    required
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="selling_price">Selling Price *</Label>
+                  <Input
+                    id="selling_price"
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    value={partFormData.selling_price}
+                    onChange={(e) =>
+                      setPartFormData({ ...partFormData, selling_price: e.target.value })
+                    }
+                    required
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="quantity">Quantity *</Label>
+                  <Input
+                    id="quantity"
+                    type="number"
+                    min="0"
+                    value={partFormData.quantity}
+                    onChange={(e) =>
+                      setPartFormData({ ...partFormData, quantity: e.target.value })
+                    }
+                    required
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="weight">Weight (optional)</Label>
+                  <Input
+                    id="weight"
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    value={partFormData.weight}
+                    onChange={(e) =>
+                      setPartFormData({ ...partFormData, weight: e.target.value })
+                    }
+                  />
+                </div>
+              </div>
+
+              <div>
+                <Label htmlFor="sku">SKU (optional)</Label>
+                <Input
+                  id="sku"
+                  value={partFormData.sku}
+                  onChange={(e) =>
+                    setPartFormData({ ...partFormData, sku: e.target.value })
+                  }
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="images">Images (comma-separated URLs)</Label>
+                <Input
+                  id="images"
+                  placeholder="https://example.com/image1.jpg, https://example.com/image2.jpg"
+                  value={partFormData.images}
+                  onChange={(e) =>
+                    setPartFormData({ ...partFormData, images: e.target.value })
+                  }
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="color_options">Color Options (comma-separated)</Label>
+                <Input
+                  id="color_options"
+                  placeholder="Red, Blue, Green"
+                  value={partFormData.color_options}
+                  onChange={(e) =>
+                    setPartFormData({ ...partFormData, color_options: e.target.value })
+                  }
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="compatibility">Compatibility (comma-separated models)</Label>
+                <Input
+                  id="compatibility"
+                  placeholder="Model A, Model B, Model C"
+                  value={partFormData.compatibility}
+                  onChange={(e) =>
+                    setPartFormData({ ...partFormData, compatibility: e.target.value })
+                  }
+                />
+              </div>
+
+              <Button
+                type="submit"
+                className="w-full bg-gradient-primary"
+                disabled={creatingPart}
+              >
+                {creatingPart ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Creating...
+                  </>
+                ) : (
+                  "Create Part"
+                )}
+              </Button>
+            </form>
+          </DialogContent>
+        </Dialog>
       </div>
 
       <div className="flex gap-4">
@@ -115,7 +592,7 @@ export default function Products() {
             <SelectValue placeholder="Filter by type" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="">All Types</SelectItem>
+            <SelectItem value="all">All Types</SelectItem>
             <SelectItem value="part">Parts</SelectItem>
             <SelectItem value="merch">Merchandise</SelectItem>
           </SelectContent>

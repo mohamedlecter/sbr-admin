@@ -1,4 +1,4 @@
-const API_BASE_URL = 'http://localhost:3000/api/admin';
+const API_BASE_URL = 'http://localhost:3000/api';
 
 interface PaginationParams {
   page?: number;
@@ -42,9 +42,60 @@ async function apiRequest<T>(
   }
 }
 
+// Auth APIs
+export interface LoginResponse {
+  message: string;
+  token: string;
+  user: {
+    id: string;
+    full_name: string;
+    email: string;
+    phone: string;
+    is_admin: number;
+  };
+}
+
+export const authApi = {
+  login: async (email: string, password: string): Promise<ApiResponse<LoginResponse>> => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/auth/login-admin`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        return { error: data.error || data.message || 'Login failed' };
+      }
+
+      // Store token in localStorage
+      if (data.token) {
+        localStorage.setItem('admin_token', data.token);
+        localStorage.setItem('admin_user', JSON.stringify(data.user));
+      }
+
+      return { data };
+    } catch (error) {
+      console.error('Login error:', error);
+      return { error: 'Network error occurred' };
+    }
+  },
+  logout: () => {
+    localStorage.removeItem('admin_token');
+    localStorage.removeItem('admin_user');
+  },
+  isAuthenticated: (): boolean => {
+    return !!localStorage.getItem('admin_token');
+  },
+};
+
 // Dashboard APIs
 export const dashboardApi = {
-  getStatistics: () => apiRequest('/dashboard'),
+  getStatistics: () => apiRequest('/admin/dashboard'),
 };
 
 // Users APIs
@@ -58,10 +109,10 @@ export const usersApi = {
     Object.entries(params).forEach(([key, value]) => {
       if (value !== undefined) queryParams.append(key, String(value));
     });
-    return apiRequest(`/users?${queryParams}`);
+    return apiRequest(`/admin/users?${queryParams}`);
   },
   updateMembership: (id: string, data: { membership_type: string; membership_points?: number }) =>
-    apiRequest(`/users/${id}/membership`, {
+    apiRequest(`/admin/users/${id}/membership`, {
       method: 'PUT',
       body: JSON.stringify(data),
     }),
@@ -78,10 +129,10 @@ export const ordersApi = {
     Object.entries(params).forEach(([key, value]) => {
       if (value !== undefined) queryParams.append(key, String(value));
     });
-    return apiRequest(`/orders?${queryParams}`);
+    return apiRequest(`/admin/orders?${queryParams}`);
   },
   updateStatus: (id: string, data: { status: string; tracking_number?: string }) =>
-    apiRequest(`/orders/${id}/status`, {
+    apiRequest(`/admin/orders/${id}/status`, {
       method: 'PUT',
       body: JSON.stringify(data),
     }),
@@ -99,14 +150,14 @@ export const productsApi = {
     Object.entries(params).forEach(([key, value]) => {
       if (value !== undefined) queryParams.append(key, String(value));
     });
-    return apiRequest(`/products?${queryParams}`);
+    return apiRequest(`/admin/products?${queryParams}`);
   },
 };
 
 // Parts APIs
 export const partsApi = {
   create: (data: any) =>
-    apiRequest('/parts', {
+    apiRequest('/admin/parts', {
       method: 'POST',
       body: JSON.stringify(data),
     }),
@@ -123,38 +174,38 @@ export const merchandiseApi = {
 
 // Brands APIs
 export const brandsApi = {
-  getAll: () => apiRequest('/brands'),
-  create: (data: { name: string; description?: string; logo_url?: string }) =>
-    apiRequest('/brands', {
+  getAll: () => apiRequest('/products/brands'),
+  create: (data: { name: string; description: string; logo_url?: string }) =>
+    apiRequest('/admin/brands', {
       method: 'POST',
       body: JSON.stringify(data),
     }),
-  update: (id: string, data: { name?: string; description?: string; logo_url?: string }) =>
-    apiRequest(`/brands/${id}`, {
+  update: (id: string, data: { name?: string; description: string; logo_url?: string }) =>
+    apiRequest(`/admin/brands/${id}`, {
       method: 'PUT',
       body: JSON.stringify(data),
     }),
   delete: (id: string) =>
-    apiRequest(`/brands/${id}`, {
+    apiRequest(`/admin/brands/${id}`, {
       method: 'DELETE',
     }),
 };
 
 // Categories APIs
 export const categoriesApi = {
-  getAll: () => apiRequest('/categories'),
-  create: (data: { name: string; description?: string; parent_id?: string; image_url?: string }) =>
-    apiRequest('/categories', {
+  getAll: () => apiRequest('/products/categories'),
+  create: (data: { name: string; description: string; parent_id?: string; image_url?: string }) =>
+    apiRequest('/admin/categories', {
       method: 'POST',
       body: JSON.stringify(data),
     }),
-  update: (id: string, data: { name?: string; description?: string; parent_id?: string; image_url?: string }) =>
-    apiRequest(`/categories/${id}`, {
+  update: (id: string, data: { name?: string; description: string; parent_id?: string; image_url?: string }) =>
+    apiRequest(`/admin/categories/${id}`, {
       method: 'PUT',
       body: JSON.stringify(data),
     }),
   delete: (id: string) =>
-    apiRequest(`/categories/${id}`, {
+    apiRequest(`/admin/categories/${id}`, {
       method: 'DELETE',
     }),
 };
