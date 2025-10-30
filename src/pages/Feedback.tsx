@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { DataTable } from "@/components/DataTable";
 import { feedbackApi } from "@/lib/api";
 import { toast } from "sonner";
-
+import { useNavigate } from "react-router-dom";
 interface Feedback {
   id: string;
   full_name: string;
@@ -17,7 +17,7 @@ export default function Feedback() {
   const [pagination, setPagination] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
-
+  const navigate = useNavigate();
   useEffect(() => {
     loadFeedback();
   }, [page]);
@@ -76,6 +76,7 @@ export default function Feedback() {
           data={feedback}
           pagination={pagination}
           onPageChange={setPage}
+          onRowClick={(item) => navigate(`/feedback/${item.id}`)}
         />
       )}
     </div>

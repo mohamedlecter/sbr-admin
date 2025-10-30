@@ -11,6 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useNavigate } from "react-router-dom";
 
 interface Order {
   id: string;
@@ -24,6 +25,7 @@ interface Order {
 }
 
 export default function Orders() {
+  const navigate = useNavigate();
   const [orders, setOrders] = useState<Order[]>([]);
   const [pagination, setPagination] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -131,6 +133,7 @@ export default function Orders() {
       ) : (
         <DataTable
           columns={orderColumns}
+          onRowClick={(item) => navigate(`/orders/${item.id}`)}
           data={orders}
           pagination={pagination}
           onPageChange={setPage}

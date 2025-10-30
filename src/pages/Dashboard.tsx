@@ -4,6 +4,7 @@ import { StatCard } from "@/components/StatCard";
 import { DataTable } from "@/components/DataTable";
 import { dashboardApi } from "@/lib/api";
 import { toast } from "sonner";
+import { useNavigate } from "react-router-dom";
 
 interface DashboardStats {
   total_users: number;
@@ -25,7 +26,7 @@ export default function Dashboard() {
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [recentOrders, setRecentOrders] = useState<RecentOrder[]>([]);
   const [loading, setLoading] = useState(true);
-
+  const navigate = useNavigate();
   useEffect(() => {
     loadDashboard();
   }, []);
@@ -125,6 +126,7 @@ export default function Dashboard() {
           columns={orderColumns}
           data={recentOrders}
           emptyMessage="No recent orders"
+          onRowClick={(item) => navigate(`/orders/${item.id}`)}
         />
       </div>
     </div>

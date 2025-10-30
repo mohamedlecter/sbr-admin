@@ -4,6 +4,7 @@ import { usersApi } from "@/lib/api";
 import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 interface User {
   id: string;
@@ -16,6 +17,7 @@ interface User {
 }
 
 export default function Users() {
+  const navigate = useNavigate();
   const [users, setUsers] = useState<User[]>([]);
   const [pagination, setPagination] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -92,6 +94,7 @@ export default function Users() {
       ) : (
         <DataTable
           columns={userColumns}
+          onRowClick={(item) => navigate(`/users/${item.id}`)}
           data={users}
           pagination={pagination}
           onPageChange={setPage}

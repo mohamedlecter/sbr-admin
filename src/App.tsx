@@ -9,6 +9,7 @@ import { AdminSidebar } from "@/components/AdminSidebar";
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import Users from "./pages/Users";
+import UserDetails from "./pages/UserDetails";
 import Orders from "./pages/Orders";
 import Products from "./pages/Products";
 import EditPart from "./pages/EditPart.tsx";
@@ -20,6 +21,7 @@ import Feedback from "./pages/Feedback";
 import Ambassadors from "./pages/Ambassadors";
 import NotFound from "./pages/NotFound";
 import { authApi } from "@/lib/api";
+import OrderDetails from "./pages/OrderDetails.tsx";
 
 const queryClient = new QueryClient();
 
@@ -94,7 +96,9 @@ const App = () => {
                           <Routes>
                             <Route path="/" element={<Dashboard />} />
                             <Route path="/users" element={<Users />} />
+                            <Route path="/users/:id" element={<UserDetails />} />
                             <Route path="/orders" element={<Orders />} />
+                            <Route path="/orders/:id" element={<OrderDetails />} />
                             <Route path="/products" element={<Products />} />
                             <Route path="/products/parts/new" element={<CreatePart />} />
                             <Route path="/products/parts/:id" element={<EditPart />} />

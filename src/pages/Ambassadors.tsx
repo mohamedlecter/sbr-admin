@@ -9,7 +9,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-
+import { useNavigate } from "react-router-dom";
 interface Ambassador {
   id: string;
   full_name: string;
@@ -27,7 +27,7 @@ export default function Ambassadors() {
   const [loading, setLoading] = useState(true);
   const [status, setStatus] = useState<string>("");
   const [page, setPage] = useState(1);
-
+  const navigate = useNavigate();
   useEffect(() => {
     loadAmbassadors();
   }, [page, status]);
@@ -94,7 +94,7 @@ export default function Ambassadors() {
             <SelectValue placeholder="Filter by status" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="">All Statuses</SelectItem>
+            <SelectItem value="all">All Statuses</SelectItem>
             <SelectItem value="pending">Pending</SelectItem>
             <SelectItem value="approved">Approved</SelectItem>
             <SelectItem value="rejected">Rejected</SelectItem>
@@ -112,6 +112,7 @@ export default function Ambassadors() {
           data={ambassadors}
           pagination={pagination}
           onPageChange={setPage}
+          onRowClick={(item) => navigate(`/ambassadors/${item.id}`)}
         />
       )}
     </div>

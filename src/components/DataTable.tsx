@@ -27,6 +27,7 @@ interface DataTableProps<T> {
   };
   onPageChange?: (page: number) => void;
   emptyMessage?: string;
+  onRowClick?: (item: T) => void; 
 }
 
 export function DataTable<T extends { id?: string }>({
@@ -35,8 +36,8 @@ export function DataTable<T extends { id?: string }>({
   pagination,
   onPageChange,
   emptyMessage = "No data available",
+  onRowClick,
 }: DataTableProps<T>) {
-  // Ensure data is always an array
   const safeData = Array.isArray(data) ? data : [];
 
   return (
@@ -66,7 +67,10 @@ export function DataTable<T extends { id?: string }>({
               safeData.map((item, index) => (
                 <TableRow
                   key={item.id || index}
-                  className="border-b border-border/50 transition-colors hover:bg-muted/50"
+                  className={`border-b border-border/50 transition-colors hover:bg-muted/50 ${
+                    onRowClick ? "cursor-pointer" : ""
+                  }`}
+                  onClick={() => onRowClick?.(item)} // 👈 handle row click
                 >
                   {columns.map((column) => (
                     <TableCell key={column.key} className="text-foreground">
