@@ -11,6 +11,8 @@ import Dashboard from "./pages/Dashboard";
 import Users from "./pages/Users";
 import Orders from "./pages/Orders";
 import Products from "./pages/Products";
+import EditPart from "./pages/EditPart.tsx";
+import EditMerchandise from "./pages/EditMerchandise.tsx";
 import Brands from "./pages/Brands";
 import Categories from "./pages/Categories";
 import Feedback from "./pages/Feedback";
@@ -93,6 +95,8 @@ const App = () => {
                             <Route path="/users" element={<Users />} />
                             <Route path="/orders" element={<Orders />} />
                             <Route path="/products" element={<Products />} />
+                            <Route path="/products/parts/:id" element={<EditPart />} />
+                            <Route path="/products/merchandise/:id" element={<EditMerchandise />} />
                             <Route path="/brands" element={<Brands />} />
                             <Route path="/categories" element={<Categories />} />
                             <Route path="/feedback" element={<Feedback />} />

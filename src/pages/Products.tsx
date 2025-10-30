@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { DataTable } from "@/components/DataTable";
-import { productsApi, partsApi, brandsApi, categoriesApi } from "@/lib/api";
+import { productsApi, partsApi, merchandiseApi, brandsApi, categoriesApi } from "@/lib/api";
 import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -22,16 +23,18 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 
-interface Product {
+interface ProductRow {
+  images: string[];
   id: string;
   name: string;
-  type: string;
-  price: string | number;
-  merch_price: string | number;
+  type: "part" | "merch";
+  price?: number;
+  merch_price?: number;
   quantity: number;
-  is_active: boolean;
-  brand_name: string;
-  category_name: string;
+  is_active: boolean | number;
+  brand_name?: string;
+  category_name?: string;
+  image_url?: string;
 }
 
 interface Brand {
@@ -45,7 +48,8 @@ interface Category {
 }
 
 export default function Products() {
-  const [products, setProducts] = useState<Product[]>([]);
+  const navigate = useNavigate();
+  const [products, setProducts] = useState<ProductRow[]>([]);
   const [pagination, setPagination] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -121,8 +125,38 @@ export default function Products() {
     }
 
     if (data) {
-      setProducts((data as any).products || []);
-      setPagination((data as any).pagination);
+      const d: any = data;
+      const parts: ProductRow[] = Array.isArray(d.parts)
+        ? d.parts.map((p: any) => ({
+            id: p.id,
+            name: p.name,
+            type: "part",
+            price: p.selling_price ? parseFloat(p.selling_price) : undefined,
+            quantity: p.quantity ?? 0,
+            is_active: p.is_active ?? 0,
+            brand_name: p.brand_name,
+            category_name: p.category_name,
+            image_url: Array.isArray(p.images) && p.images.length > 0 ? p.images[0] : undefined,
+          }))
+        : [];
+      const merch: ProductRow[] = Array.isArray(d.merchandise)
+        ? d.merchandise.map((m: any) => ({
+            id: m.id,
+            name: m.name,
+            type: "merch",
+            merch_price: m.price ? parseFloat(m.price) : undefined,
+            quantity: m.quantity ?? 0,
+            is_active: m.is_active ?? 0,
+            image_url: Array.isArray(m.images) && m.images.length > 0 ? m.images[0] : undefined,
+          }))
+        : [];
+
+      const combined = type === "part" ? parts : type === "merch" ? merch : [...parts, ...merch];
+      setProducts(combined);
+
+      // choose pagination set based on type
+      const pag = type === "merch" ? d.merchandise_pagination || null : d.pagination || null;
+      setPagination(pag);
     }
     setLoading(false);
   };
@@ -294,7 +328,24 @@ export default function Products() {
   };
 
   const productColumns = [
-    { key: "name", label: "Name" },
+    {
+      key: "name",
+      label: "Item",
+      render: (_: any, item: ProductRow) => {
+        const imgSrc = item.images?.[0] || "/placeholder.svg";
+        return (
+          <div className="flex items-center gap-3">
+            <img src={imgSrc} alt={item.name} className="h-10 w-10 rounded object-cover border border-border" />
+            <button
+              onClick={() => navigate(item.type === "part" ? `/products/parts/${item.id}` : `/products/merchandise/${item.id}`)}
+              className="text-primary hover:underline text-left"
+            >
+              {item.name}
+            </button>
+          </div>
+        );
+      },
+    },
     {
       key: "type",
       label: "Type",
@@ -306,13 +357,15 @@ export default function Products() {
         </span>
       ),
     },
-    { key: "brand_name", label: "Brand" },
-    { key: "category_name", label: "Category" },
+    { key: "brand_name", label: "Brand", render: (v: string, item: ProductRow) => item.type === "part" ? (v || "-") : "-" },
+    { key: "category_name", label: "Category", render: (v: string, item: ProductRow) => item.type === "part" ? (v || "-") : "-" },
     {
       key: "price",
       label: "Price",
-      render: (value: string | number, item: Product) => 
-        `$${Number(item.type === "part" ? value : item.merch_price).toFixed(2)}`,
+      render: (_: any, item: ProductRow) => {
+        const val = item.type === "part" ? item.price : item.merch_price;
+        return val !== undefined ? `$${Number(val).toFixed(2)}` : "-";
+      },
     },
     { key: "quantity", label: "Stock" },
     {
@@ -325,6 +378,28 @@ export default function Products() {
           {value ? "Active" : "Inactive"}
         </span>
       ),
+    },
+    {
+      key: "actions",
+      label: "Actions",
+      render: (_: any, item: ProductRow) => {
+        const onDelete = async () => {
+          if (!confirm(`Delete ${item.type} “${item.name}”?`)) return;
+          const { error } = item.type === "part" ? await partsApi.delete(item.id) : await merchandiseApi.delete(item.id);
+          if (error) {
+            toast.error(error || "Failed to delete");
+          } else {
+            toast.success("Deleted successfully");
+            loadProducts();
+          }
+        };
+        return (
+          <div className="flex gap-2">
+            <Button variant="outline" size="sm" onClick={() => navigate(item.type === "part" ? `/products/parts/${item.id}` : `/products/merchandise/${item.id}`)}>Edit</Button>
+            <Button variant="destructive" size="sm" onClick={onDelete}>Delete</Button>
+          </div>
+        );
+      },
     },
   ];
 

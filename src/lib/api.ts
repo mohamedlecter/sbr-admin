@@ -161,13 +161,33 @@ export const partsApi = {
       method: 'POST',
       body: JSON.stringify(data),
     }),
+  delete: (id: string) =>
+    apiRequest(`/admin/parts/${id}`, {
+      method: 'DELETE',
+    }),
+  getOne: (id: string) => apiRequest(`/admin/parts/${id}`),
+  update: (id: string, data: any) =>
+    apiRequest(`/admin/parts/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    }),
 };
 
 // Merchandise APIs
 export const merchandiseApi = {
   create: (data: any) =>
-    apiRequest('/merchandise', {
+    apiRequest('/admin/merchandise', {
       method: 'POST',
+      body: JSON.stringify(data),
+    }),
+  delete: (id: string) =>
+    apiRequest(`/admin/merchandise/${id}`, {
+      method: 'DELETE',
+    }),
+  getOne: (id: string) => apiRequest(`/admin/merchandise/${id}`),
+  update: (id: string, data: any) =>
+    apiRequest(`/admin/merchandise/${id}`, {
+      method: 'PUT',
       body: JSON.stringify(data),
     }),
 };
