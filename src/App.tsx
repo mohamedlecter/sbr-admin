@@ -13,6 +13,7 @@ import Orders from "./pages/Orders";
 import Products from "./pages/Products";
 import EditPart from "./pages/EditPart.tsx";
 import EditMerchandise from "./pages/EditMerchandise.tsx";
+import CreatePart from "./pages/CreatePart.tsx";
 import Brands from "./pages/Brands";
 import Categories from "./pages/Categories";
 import Feedback from "./pages/Feedback";
@@ -95,6 +96,7 @@ const App = () => {
                             <Route path="/users" element={<Users />} />
                             <Route path="/orders" element={<Orders />} />
                             <Route path="/products" element={<Products />} />
+                            <Route path="/products/parts/new" element={<CreatePart />} />
                             <Route path="/products/parts/:id" element={<EditPart />} />
                             <Route path="/products/merchandise/:id" element={<EditMerchandise />} />
                             <Route path="/brands" element={<Brands />} />

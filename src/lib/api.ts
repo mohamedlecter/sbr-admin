@@ -195,12 +195,12 @@ export const merchandiseApi = {
 // Brands APIs
 export const brandsApi = {
   getAll: () => apiRequest('/products/brands'),
-  create: (data: { name: string; description: string; logo_url?: string }) =>
+  create: (data: { name: string; description?: string; logo_url?: string }) =>
     apiRequest('/admin/brands', {
       method: 'POST',
       body: JSON.stringify(data),
     }),
-  update: (id: string, data: { name?: string; description: string; logo_url?: string }) =>
+  update: (id: string, data: { name?: string; description?: string; logo_url?: string }) =>
     apiRequest(`/admin/brands/${id}`, {
       method: 'PUT',
       body: JSON.stringify(data),
@@ -214,12 +214,12 @@ export const brandsApi = {
 // Categories APIs
 export const categoriesApi = {
   getAll: () => apiRequest('/products/categories'),
-  create: (data: { name: string; description: string; parent_id?: string; image_url?: string }) =>
+  create: (data: { name: string; description?: string; parent_id?: string; image_url?: string }) =>
     apiRequest('/admin/categories', {
       method: 'POST',
       body: JSON.stringify(data),
     }),
-  update: (id: string, data: { name?: string; description: string; parent_id?: string; image_url?: string }) =>
+  update: (id: string, data: { name?: string; description?: string; parent_id?: string; image_url?: string }) =>
     apiRequest(`/admin/categories/${id}`, {
       method: 'PUT',
       body: JSON.stringify(data),

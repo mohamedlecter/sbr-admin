@@ -412,7 +412,7 @@ export default function Products() {
         </div>
         <Dialog open={isPartDialogOpen} onOpenChange={setIsPartDialogOpen}>
           <DialogTrigger asChild>
-            <Button className="bg-gradient-primary">
+            <Button className="bg-gradient-primary" onClick={() => navigate('/products/parts/new')}>
               <Plus className="mr-2 h-4 w-4" />
               Create Part
             </Button>
