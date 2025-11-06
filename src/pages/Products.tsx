@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { DataTable } from "@/components/DataTable";
-import { productsApi, partsApi, merchandiseApi, brandsApi, categoriesApi } from "@/lib/api";
+import { productsApi, partsApi, merchandiseApi, brandsApi, categoriesApi, getImageUrl } from "@/lib/api";
 import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -175,10 +175,10 @@ export default function Products() {
           setCreatingPart(false);
           return;
         }
-        const { data: brandData, error: brandError } = await brandsApi.create({
+        const { data: brandData, error: brandError } = await brandsApi.create(new FormData({
           name: newBrandName,
           description: newBrandDescription,
-        });
+        } as any));
         if (brandError || !brandData) {
           toast.error(brandError || "Failed to create brand");
           setCreatingPart(false);
@@ -288,7 +288,7 @@ export default function Products() {
         compatibility: compatibility.length > 0 ? compatibility : undefined,
       };
 
-      const { error } = await partsApi.create(partData);
+      const { error } = await partsApi.create(new FormData(partData as any));
 
       if (error) {
         toast.error(error || "Failed to create part");
@@ -329,10 +329,12 @@ export default function Products() {
       key: "name",
       label: "Item",
       render: (_: any, item: ProductRow) => {
-        const imgSrc = item.images?.[0] || "/placeholder.svg";
+        console.log("item", item);
+        const imgSrc = getImageUrl(item.image_url);
+        console.log("imgSrc", imgSrc);
         return (
           <div className="flex items-center gap-3">
-            <img src={imgSrc} alt={item.name} className="h-10 w-10 rounded object-cover border border-border" />
+            <img src={imgSrc} alt={item.name} className="h-20 w-20 rounded object-cover border border-border" />
             <button
               onClick={() => navigate(item.type === "part" ? `/products/parts/${item.id}` : `/products/merchandise/${item.id}`)}
               className="text-primary hover:underline text-left"

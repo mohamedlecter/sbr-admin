@@ -6,6 +6,7 @@ import {
   ShoppingCart,
   Tag,
   FolderTree,
+  Handshake,
   MessageSquare,
   Award,
   Bike,
@@ -30,6 +31,7 @@ const navItems = [
   { title: "Products", url: "/products", icon: Package },
   { title: "Brands", url: "/brands", icon: Tag },
   { title: "Categories", url: "/categories", icon: FolderTree },
+  { title: "Partners", url: "/partners", icon: Handshake },
   { title: "Feedback", url: "/feedback", icon: MessageSquare },
   { title: "Ambassadors", url: "/ambassadors", icon: Award },
 ];

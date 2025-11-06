@@ -17,6 +17,7 @@ import EditMerchandise from "./pages/EditMerchandise.tsx";
 import CreatePart from "./pages/CreatePart.tsx";
 import Brands from "./pages/Brands";
 import Categories from "./pages/Categories";
+import Partners from "./pages/Partners";
 import Feedback from "./pages/Feedback";
 import Ambassadors from "./pages/Ambassadors";
 import NotFound from "./pages/NotFound";
@@ -105,6 +106,7 @@ const App = () => {
                             <Route path="/products/merchandise/:id" element={<EditMerchandise />} />
                             <Route path="/brands" element={<Brands />} />
                             <Route path="/categories" element={<Categories />} />
+                            <Route path="/partners" element={<Partners />} />
                             <Route path="/feedback" element={<Feedback />} />
                             <Route path="/ambassadors" element={<Ambassadors />} />
                             <Route path="*" element={<NotFound />} />

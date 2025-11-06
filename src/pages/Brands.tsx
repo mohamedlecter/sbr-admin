@@ -64,8 +64,8 @@ export default function Brands() {
     e.preventDefault();
 
     const { error } = editingBrand
-      ? await brandsApi.update(editingBrand.id, formData)
-      : await brandsApi.create(formData);
+      ? await brandsApi.update(editingBrand.id, new FormData(formData as any))
+      : await brandsApi.create(new FormData(formData as any));
 
     if (error) {
       toast.error(error);

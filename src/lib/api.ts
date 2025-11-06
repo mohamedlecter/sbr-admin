@@ -1,4 +1,28 @@
 const API_BASE_URL = 'http://localhost:3000/api';
+const BASE_URL = 'http://localhost:3000';
+
+// Helper function to convert relative image paths to full URLs
+export function getImageUrl(imagePath: string | null | undefined): string {
+  if (!imagePath) return '/placeholder.svg';
+  
+  // If it's already a full URL, return as is
+  if (imagePath.startsWith('http://') || imagePath.startsWith('https://')) {
+    return imagePath;
+  }
+  
+  // If it starts with /uploads, use it directly (will be proxied by Vite)
+  if (imagePath.startsWith('/uploads')) {
+    return imagePath;
+  }
+  
+  // If it starts with /, it's a relative path from the server root
+  if (imagePath.startsWith('/')) {
+    return imagePath; // Use relative path, will be proxied
+  }
+  
+  // Otherwise, assume it's a relative path
+  return `/${imagePath}`;
+}
 
 interface PaginationParams {
   page?: number;
@@ -18,9 +42,12 @@ async function apiRequest<T>(
 ): Promise<ApiResponse<T>> {
   try {
     const token = localStorage.getItem('admin_token');
-    const headers = {
-      'Content-Type': 'application/json',
+    
+    // Don't set Content-Type for FormData, let the browser set it with boundary
+    const isFormData = options.body instanceof FormData;
+    const headers: HeadersInit = {
       ...(token && { Authorization: `Bearer ${token}` }),
+      ...(isFormData ? {} : { 'Content-Type': 'application/json' }),
       ...options.headers,
     };
 
@@ -158,20 +185,20 @@ export const productsApi = {
 
 // Parts APIs
 export const partsApi = {
-  create: (data: any) =>
+  create: (formData: FormData) =>
     apiRequest('/admin/parts', {
       method: 'POST',
-      body: JSON.stringify(data),
+      body: formData,
     }),
   delete: (id: string) =>
     apiRequest(`/admin/parts/${id}`, {
       method: 'DELETE',
     }),
   getOne: (id: string) => apiRequest(`/admin/parts/${id}`),
-  update: (id: string, data: any) =>
+  update: (id: string, formData: FormData) =>
     apiRequest(`/admin/parts/${id}`, {
       method: 'PUT',
-      body: JSON.stringify(data),
+      body: formData,
     }),
 };
 
@@ -197,15 +224,15 @@ export const merchandiseApi = {
 // Brands APIs
 export const brandsApi = {
   getAll: () => apiRequest('/products/brands'),
-  create: (data: { name: string; description?: string; logo_url?: string }) =>
+  create: (formData: FormData) =>
     apiRequest('/admin/brands', {
       method: 'POST',
-      body: JSON.stringify(data),
+      body: formData,
     }),
-  update: (id: string, data: { name?: string; description?: string; logo_url?: string }) =>
+  update: (id: string, formData: FormData) =>
     apiRequest(`/admin/brands/${id}`, {
       method: 'PUT',
-      body: JSON.stringify(data),
+      body: formData,
     }),
   delete: (id: string) =>
     apiRequest(`/admin/brands/${id}`, {
@@ -232,6 +259,11 @@ export const categoriesApi = {
     }),
 };
 
+// Models APIs
+export const modelsApi = {
+  getByMakeName: (makeName: string) => apiRequest(`/products/models/make-name/${encodeURIComponent(makeName)}`),
+};
+
 // Feedback APIs
 export const feedbackApi = {
   getAll: (params: PaginationParams & { feedback_type?: string }) => {
@@ -256,5 +288,25 @@ export const ambassadorsApi = {
     apiRequest(`/admin/ambassadors/${id}/status`, {
       method: 'PUT',
       body: JSON.stringify(data),
+    }),
+};
+
+// Partners APIs
+export const partnersApi = {
+  getAll: () => apiRequest('/admin/partners'),
+  getById: (id: string) => apiRequest(`/admin/partners/${id}`),
+  create: (formData: FormData) =>
+    apiRequest('/admin/partners', {
+      method: 'POST',
+      body: formData,
+    }),
+  update: (id: string, formData: FormData) =>
+    apiRequest(`/admin/partners/${id}`, {
+      method: 'PUT',
+      body: formData,
+    }),
+  delete: (id: string) =>
+    apiRequest(`/admin/partners/${id}`, {
+      method: 'DELETE',
     }),
 };

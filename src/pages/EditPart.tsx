@@ -1,13 +1,13 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { brandsApi, categoriesApi, partsApi } from "@/lib/api";
+import { brandsApi, categoriesApi, partsApi, getImageUrl } from "@/lib/api";
 import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ArrowLeftIcon, Loader2 } from "lucide-react";
+import { ArrowLeftIcon, Loader2, Upload, X } from "lucide-react";
 import { Select, SelectValue, SelectItem, SelectContent, SelectTrigger } from "@/components/ui/select";
 
 interface Brand { id: string; name: string }
@@ -27,7 +27,6 @@ export default function EditPart() {
     selling_price: "",
     quantity: "",
     weight: "",
-    images: "",
     color_options: "",
     compatibility: "",
   });
@@ -35,6 +34,9 @@ export default function EditPart() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [newBrandName, setNewBrandName] = useState("");
   const [newCategoryName, setNewCategoryName] = useState("");
+  const [imageFiles, setImageFiles] = useState<File[]>([]);
+  const [imagePreviews, setImagePreviews] = useState<string[]>([]);
+  const [existingImages, setExistingImages] = useState<string[]>([]);
 
   useEffect(() => {
     const load = async () => {
@@ -52,6 +54,11 @@ export default function EditPart() {
         return;
       }
       const p: any = partsResult.data;
+      const images = Array.isArray(p.part.images) ? p.part.images : (p.part.images ? [p.part.images] : []);
+      // Convert relative paths to full URLs
+      const imageUrls = images.map((img: string) => getImageUrl(img));
+      setExistingImages(images); // Keep original paths for backend
+      setImagePreviews(imageUrls); // Use full URLs for display
       setForm({
         name: p.part.name || "",
         description: p.part.description || "",
@@ -59,7 +66,6 @@ export default function EditPart() {
         selling_price: p.part.selling_price ?? "",
         quantity: p.part.quantity ?? "",
         weight: p.part.weight ?? "",
-        images: Array.isArray(p.part.images) ? p.part.images.join(", ") : p.part.images || "",
         color_options: Array.isArray(p.part.color_options) ? p.part.color_options.join(", ") : p.part.color_options || "",
         compatibility: Array.isArray(p.part.compatibility) ? p.part.compatibility.join(", ") : p.part.compatibility || "",
       });      
@@ -80,28 +86,88 @@ export default function EditPart() {
     load();
   }, [id]);
 
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    if (files.length === 0) return;
+
+    const validFiles = files.filter(file => {
+      const isValid = file.type.startsWith('image/');
+      if (!isValid) {
+        toast.error(`${file.name} is not a valid image file`);
+      }
+      return isValid;
+    });
+
+    const filesToAdd = validFiles.slice(0, 10 - imageFiles.length);
+    if (validFiles.length > filesToAdd.length) {
+      toast.warning(`Only the first ${filesToAdd.length} images were added (max 10)`);
+    }
+
+    setImageFiles(prev => [...prev, ...filesToAdd]);
+
+    filesToAdd.forEach(file => {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreviews(prev => [...prev, reader.result as string]);
+      };
+      reader.readAsDataURL(file);
+    });
+  };
+
+  const removeImage = (index: number) => {
+    // Check if it's a new file or existing image
+    const totalPreviews = existingImages.length + imageFiles.length;
+    if (index < existingImages.length) {
+      // Remove existing image
+      setExistingImages(prev => prev.filter((_, i) => i !== index));
+      setImagePreviews(prev => prev.filter((_, i) => i !== index));
+    } else {
+      // Remove new file
+      const fileIndex = index - existingImages.length;
+      setImageFiles(prev => prev.filter((_, i) => i !== fileIndex));
+      setImagePreviews(prev => prev.filter((_, i) => i !== index));
+    }
+  };
+
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!id) return;
     setSaving(true);
-    const payload: any = {
-      name: form.name,
-      description: form.description || undefined,
-      selling_price: form.selling_price !== "" ? parseFloat(form.selling_price) : undefined,
-      quantity: form.quantity !== "" ? parseInt(form.quantity) : undefined,
-      images: form.images
-        ? form.images.split(",").map((s: string) => s.trim()).filter(Boolean)
-        : undefined,
-      color_options: form.color_options
-        ? form.color_options.split(",").map((s: string) => s.trim()).filter(Boolean)
-        : undefined,
-      compatibility: form.compatibility
-        ? form.compatibility.split(",").map((s: string) => s.trim()).filter(Boolean)
-        : undefined,
-    };
-    console.log("payload", payload);
-    const { error } = await partsApi.update(id, payload);
-    console.log("error", error);
+
+    const colorOptions = form.color_options
+      ? form.color_options.split(",").map((s: string) => s.trim()).filter(Boolean)
+      : [];
+    const compatibility = form.compatibility
+      ? form.compatibility.split(",").map((s: string) => s.trim()).filter(Boolean)
+      : [];
+
+    // Create FormData
+    const formData = new FormData();
+    formData.append('name', form.name);
+    if (form.description) formData.append('description', form.description);
+    if (form.original_price) formData.append('original_price', form.original_price);
+    if (form.selling_price) formData.append('selling_price', form.selling_price);
+    if (form.quantity) formData.append('quantity', form.quantity);
+    if (form.weight) formData.append('weight', form.weight);
+    
+    // Append new images
+    imageFiles.forEach((file) => {
+      formData.append('images', file);
+    });
+    
+    // Append existing images as URLs (if backend needs them)
+    existingImages.forEach((url) => {
+      formData.append('existing_images', url);
+    });
+    
+    if (colorOptions.length > 0) {
+      formData.append('color_options', colorOptions.join(','));
+    }
+    if (compatibility.length > 0) {
+      formData.append('compatibility', compatibility.join(','));
+    }
+
+    const { error } = await partsApi.update(id, formData);
     if (error) {
       toast.error(error || "Failed to save part");
     } else {
@@ -208,8 +274,52 @@ export default function EditPart() {
                 <Input id="compatibility" value={form.compatibility} onChange={(e) => setForm({ ...form, compatibility: e.target.value })} />
               </div>
               <div>
-                <Label htmlFor="images">Images (comma-separated URLs)</Label>
-                <Input id="images" value={form.images} onChange={(e) => setForm({ ...form, images: e.target.value })} />
+                <Label htmlFor="images">Images</Label>
+                <div className="space-y-4">
+                  <div className="flex items-center gap-4">
+                    <Input
+                      id="images"
+                      type="file"
+                      accept="image/*"
+                      multiple
+                      onChange={handleImageChange}
+                      className="hidden"
+                    />
+                    <Label
+                      htmlFor="images"
+                      className="flex items-center gap-2 px-4 py-2 border border-input rounded-md cursor-pointer hover:bg-accent transition-colors"
+                    >
+                      <Upload className="h-4 w-4" />
+                      <span>Upload Images</span>
+                    </Label>
+                    <span className="text-sm text-muted-foreground">
+                      {imageFiles.length > 0 && `${imageFiles.length} new image(s) selected`}
+                    </span>
+                  </div>
+
+                  {imagePreviews.length > 0 && (
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                      {imagePreviews.map((preview, index) => (
+                        <div key={index} className="relative group">
+                          <img
+                            src={preview}
+                            alt={`Preview ${index + 1}`}
+                            className="w-full h-32 object-cover rounded-md border"
+                          />
+                          <Button
+                            type="button"
+                            variant="destructive"
+                            size="icon"
+                            className="absolute top-2 right-2 h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity"
+                            onClick={() => removeImage(index)}
+                          >
+                            <X className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
             <div className="flex gap-2">
