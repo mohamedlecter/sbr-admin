@@ -26,7 +26,6 @@ export default function EditPart() {
     original_price: "",
     selling_price: "",
     quantity: "",
-    sku: "",
     weight: "",
     images: "",
     color_options: "",
@@ -46,7 +45,7 @@ export default function EditPart() {
         categoriesApi.getAll(),
       ]);
 
-      console.log("partsResult", partsResult);
+      console.log("partsResult", partsResult);  
       if (partsResult.error || !partsResult.data) {
         toast.error(partsResult.error || "Failed to load part");
         setLoading(false);
@@ -59,12 +58,11 @@ export default function EditPart() {
         original_price: p.part.original_price ?? "",
         selling_price: p.part.selling_price ?? "",
         quantity: p.part.quantity ?? "",
-        sku: p.part.sku ?? "",
         weight: p.part.weight ?? "",
-        images: Array.isArray(p.part.images) ? p.part.images.join(", ") : "",
-        color_options: p.part.color_options ?? "",
-        compatibility: p.part.compatibility ?? "",
-      });
+        images: Array.isArray(p.part.images) ? p.part.images.join(", ") : p.part.images || "",
+        color_options: Array.isArray(p.part.color_options) ? p.part.color_options.join(", ") : p.part.color_options || "",
+        compatibility: Array.isArray(p.part.compatibility) ? p.part.compatibility.join(", ") : p.part.compatibility || "",
+      });      
       if (brandsResult.data) {
         const brandsData = Array.isArray(brandsResult.data)
           ? brandsResult.data
@@ -101,7 +99,9 @@ export default function EditPart() {
         ? form.compatibility.split(",").map((s: string) => s.trim()).filter(Boolean)
         : undefined,
     };
+    console.log("payload", payload);
     const { error } = await partsApi.update(id, payload);
+    console.log("error", error);
     if (error) {
       toast.error(error || "Failed to save part");
     } else {

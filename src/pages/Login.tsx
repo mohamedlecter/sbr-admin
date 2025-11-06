@@ -48,12 +48,11 @@ export default function Login() {
     <div className="flex min-h-screen items-center justify-center bg-gradient-mesh p-4">
       <Card className="w-full max-w-md shadow-lg">
         <CardHeader className="space-y-3 text-center">
-          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-xl bg-gradient-primary shadow-md">
-            <Bike className="h-8 w-8 text-primary-foreground" />
+          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-xl shadow-md">
+            <img src="/logo.svg" alt="SBR Logo" className="h-15 w-15" />
           </div>
           <div>
             <CardTitle className="text-2xl font-bold">SBR Admin</CardTitle>
-            <CardDescription>Sign in to access the admin panel</CardDescription>
           </div>
         </CardHeader>
         <CardContent>

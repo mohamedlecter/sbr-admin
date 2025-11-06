@@ -28,7 +28,6 @@ export default function CreatePart() {
     original_price: "",
     selling_price: "",
     quantity: "",
-    sku: "",
     weight: "",
     images: "",
     color_options: "",
@@ -153,7 +152,6 @@ export default function CreatePart() {
       original_price: form.original_price !== "" ? parseFloat(form.original_price) : undefined,
       selling_price: form.selling_price !== "" ? parseFloat(form.selling_price) : undefined,
       quantity: form.quantity !== "" ? parseInt(form.quantity) : undefined,
-      sku: form.sku || undefined,
       weight: form.weight !== "" ? parseFloat(form.weight) : undefined,
       images: images.length ? images : undefined,
       color_options: colorOptions.length ? colorOptions : undefined,
@@ -261,11 +259,7 @@ export default function CreatePart() {
 
             <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
               <div>
-                <Label htmlFor="sku">SKU</Label>
-                <Input id="sku" value={form.sku} onChange={(e) => setForm({ ...form, sku: e.target.value })} />
-              </div>
-              <div>
-                <Label htmlFor="weight">Weight</Label>
+                <Label htmlFor="weight">Weight (Kg)</Label>
                 <Input id="weight" type="number" step="0.01" min="0" value={form.weight} onChange={(e) => setForm({ ...form, weight: e.target.value })} />
               </div>
             </div>

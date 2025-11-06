@@ -67,7 +67,6 @@ export default function Products() {
     original_price: "",
     selling_price: "",
     quantity: "",
-    sku: "",
     weight: "",
     images: "",
     color_options: "",
@@ -283,7 +282,6 @@ export default function Products() {
         original_price: parseFloat(partFormData.original_price),
         selling_price: parseFloat(partFormData.selling_price),
         quantity: parseInt(partFormData.quantity),
-        sku: partFormData.sku || undefined,
         weight: partFormData.weight ? parseFloat(partFormData.weight) : undefined,
         images: images.length > 0 ? images : undefined,
         color_options: colorOptions.length > 0 ? colorOptions : undefined,
@@ -308,7 +306,6 @@ export default function Products() {
         original_price: "",
         selling_price: "",
         quantity: "",
-        sku: "",
         weight: "",
         images: "",
         color_options: "",
@@ -584,17 +581,6 @@ export default function Products() {
                     }
                   />
                 </div>
-              </div>
-
-              <div>
-                <Label htmlFor="sku">SKU (optional)</Label>
-                <Input
-                  id="sku"
-                  value={partFormData.sku}
-                  onChange={(e) =>
-                    setPartFormData({ ...partFormData, sku: e.target.value })
-                  }
-                />
               </div>
 
               <div>
