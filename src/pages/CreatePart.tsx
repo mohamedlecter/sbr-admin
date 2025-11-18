@@ -44,6 +44,7 @@ export default function CreatePart() {
   const [imageFiles, setImageFiles] = useState<File[]>([]);
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
   const [selectedModelIds, setSelectedModelIds] = useState<string[]>([]);
+  const [selectedCompatibilityModelIds, setSelectedCompatibilityModelIds] = useState<string[]>([]);
 
   useEffect(() => {
     const load = async () => {
@@ -111,6 +112,7 @@ export default function CreatePart() {
       if (!form.brand_id || form.brand_id === "new") {
         setModels([]);
         setSelectedModelIds([]);
+        setSelectedCompatibilityModelIds([]);
         return;
       }
 
@@ -118,6 +120,7 @@ export default function CreatePart() {
       if (!selectedBrand || !selectedBrand.name) {
         setModels([]);
         setSelectedModelIds([]);
+        setSelectedCompatibilityModelIds([]);
         return;
       }
 
@@ -147,12 +150,26 @@ export default function CreatePart() {
   }, [form.brand_id, brands]);
 
   const handleModelToggle = (modelId: string) => {
-    setSelectedModelIds(prev => 
+    setSelectedModelIds(prev => {
+      const isSelected = prev.includes(modelId);
+      // If selecting a model for the part, remove it from compatibility
+      if (!isSelected) {
+        setSelectedCompatibilityModelIds(compat => compat.filter(id => id !== modelId));
+      }
+      return isSelected
+        ? prev.filter(id => id !== modelId)
+        : [...prev, modelId];
+    });
+  };
+
+  const handleCompatibilityModelToggle = (modelId: string) => {
+    setSelectedCompatibilityModelIds(prev => 
       prev.includes(modelId) 
         ? prev.filter(id => id !== modelId)
         : [...prev, modelId]
     );
   };
+
 
   const ensureBrandAndCategory = async () => {
     let brandId = form.brand_id;
@@ -238,7 +255,6 @@ export default function CreatePart() {
     }
 
     const colorOptions = form.color_options ? form.color_options.split(",").map((s) => s.trim()).filter(Boolean) : [];
-    const compatibility = form.compatibility ? form.compatibility.split(",").map((s) => s.trim()).filter(Boolean) : [];
 
     // Create FormData
     const formData = new FormData();
@@ -256,18 +272,29 @@ export default function CreatePart() {
       formData.append('images', file);
     });
     
-    // Append color options and compatibility as JSON strings or comma-separated
+    // Append color options
     if (colorOptions.length > 0) {
       formData.append('color_options', colorOptions.join(','));
-    }
-    if (compatibility.length > 0) {
-      formData.append('compatibility', compatibility.join(','));
     }
     
     // Append selected models
     selectedModelIds.forEach((modelId) => {
       formData.append('model_ids', modelId);
     });
+
+    // Append compatibility as comma-separated model names
+    if (selectedCompatibilityModelIds.length > 0) {
+      const compatibilityModelNames = selectedCompatibilityModelIds
+        .map(id => {
+          const model = models.find(m => m.id === id);
+          return model?.name;
+        })
+        .filter(Boolean) as string[];
+      
+      if (compatibilityModelNames.length > 0) {
+        formData.append('compatibility', compatibilityModelNames.join(', '));
+      }
+    }
 
     const { error } = await partsApi.create(formData);
     if (error) {
@@ -455,15 +482,45 @@ export default function CreatePart() {
               </div>
               </div>
             </div>
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-              <div>
-                <Label htmlFor="color_options">Color Options (comma-separated)</Label>
-                <Input id="color_options" placeholder="Black, Red, ..." value={form.color_options} onChange={(e) => setForm({ ...form, color_options: e.target.value })} />
-              </div>
-              <div>
-                <Label htmlFor="compatibility">Compatibility (comma-separated models)</Label>
-                <Input id="compatibility" placeholder="Model A, Model B" value={form.compatibility} onChange={(e) => setForm({ ...form, compatibility: e.target.value })} />
-              </div>
+            <div className="grid grid-cols-1 gap-4">
+              {models.length > 0 && (
+                <div>
+                  <Label>Compatibility (select models - excludes models selected above)</Label>
+                  <div className="mt-2 border rounded-md p-4 max-h-60 overflow-y-auto">
+                    <div className="space-y-2">
+                      {models
+                        .filter(model => !selectedModelIds.includes(model.id))
+                        .map((model) => (
+                          <div key={model.id} className="flex items-center space-x-2">
+                            <Checkbox
+                              id={`compatibility-model-${model.id}`}
+                              checked={selectedCompatibilityModelIds.includes(model.id)}
+                              onCheckedChange={() => handleCompatibilityModelToggle(model.id)}
+                            />
+                            <Label
+                              htmlFor={`compatibility-model-${model.id}`}
+                              className="text-sm font-normal cursor-pointer"
+                            >
+                              {model.name}
+                            </Label>
+                          </div>
+                        ))}
+                      {models.filter(model => !selectedModelIds.includes(model.id)).length === 0 && (
+                        <p className="text-sm text-muted-foreground">All models are selected for the part</p>
+                      )}
+                    </div>
+                  </div>
+                  {selectedCompatibilityModelIds.length > 0 && (
+                    <p className="text-sm text-muted-foreground mt-2">
+                      {selectedCompatibilityModelIds.length} compatibility model(s) selected
+                    </p>
+                  )}
+                </div>
+              )}
+            </div>
+            <div>
+              <Label htmlFor="color_options">Color Options (comma-separated)</Label>
+              <Input id="color_options" placeholder="Black, Red, ..." value={form.color_options} onChange={(e) => setForm({ ...form, color_options: e.target.value })} />
             </div>
 
 
