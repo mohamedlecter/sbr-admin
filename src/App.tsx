@@ -30,7 +30,29 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
 
   useEffect(() => {
-    setIsAuthenticated(authApi.isAuthenticated());
+    const validateAuth = async () => {
+      // First check if token exists
+      if (!authApi.isAuthenticated()) {
+        setIsAuthenticated(false);
+        return;
+      }
+
+      // Then validate the token by making an API call
+      const isValid = await authApi.validateToken();
+      setIsAuthenticated(isValid);
+    };
+
+    validateAuth();
+
+    // Listen for invalid token events from API requests
+    const handleInvalidToken = () => {
+      setIsAuthenticated(false);
+    };
+    window.addEventListener('auth:invalid-token', handleInvalidToken);
+
+    return () => {
+      window.removeEventListener('auth:invalid-token', handleInvalidToken);
+    };
   }, []);
 
   if (isAuthenticated === null) {
@@ -52,16 +74,40 @@ const App = () => {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
 
   useEffect(() => {
-    setIsAuthenticated(authApi.isAuthenticated());
+    const validateAuth = async () => {
+      // First check if token exists
+      if (!authApi.isAuthenticated()) {
+        setIsAuthenticated(false);
+        return;
+      }
+
+      // Then validate the token by making an API call
+      const isValid = await authApi.validateToken();
+      setIsAuthenticated(isValid);
+    };
+
+    validateAuth();
     
     // Listen for storage changes (e.g., when token is set in another tab)
-    const handleStorageChange = () => {
-      setIsAuthenticated(authApi.isAuthenticated());
+    const handleStorageChange = async () => {
+      if (authApi.isAuthenticated()) {
+        const isValid = await authApi.validateToken();
+        setIsAuthenticated(isValid);
+      } else {
+        setIsAuthenticated(false);
+      }
     };
     window.addEventListener("storage", handleStorageChange);
+
+    // Listen for invalid token events from API requests
+    const handleInvalidToken = () => {
+      setIsAuthenticated(false);
+    };
+    window.addEventListener('auth:invalid-token', handleInvalidToken);
     
     return () => {
       window.removeEventListener("storage", handleStorageChange);
+      window.removeEventListener('auth:invalid-token', handleInvalidToken);
     };
   }, []);
 

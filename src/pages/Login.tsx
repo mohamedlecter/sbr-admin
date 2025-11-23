@@ -14,10 +14,16 @@ export default function Login() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Redirect if already authenticated
-    if (authApi.isAuthenticated()) {
-      navigate("/", { replace: true });
-    }
+    // Validate token and redirect if already authenticated
+    const checkAuth = async () => {
+      if (authApi.isAuthenticated()) {
+        const isValid = await authApi.validateToken();
+        if (isValid) {
+          navigate("/", { replace: true });
+        }
+      }
+    };
+    checkAuth();
   }, [navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {

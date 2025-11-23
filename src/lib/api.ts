@@ -58,6 +58,12 @@ async function apiRequest<T>(
     const data = await response.json();
 
     if (!response.ok) {
+      // Handle unauthorized/forbidden responses - token is invalid
+      if (response.status === 401 || response.status === 403) {
+        authApi.logout();
+        // Dispatch a custom event to notify the app to redirect to login
+        window.dispatchEvent(new CustomEvent('auth:invalid-token'));
+      }
       return { error: data.error || 'Request failed' };
     }
 
@@ -116,6 +122,35 @@ export const authApi = {
   },
   isAuthenticated: (): boolean => {
     return !!localStorage.getItem('admin_token');
+  },
+  validateToken: async (): Promise<boolean> => {
+    const token = localStorage.getItem('admin_token');
+    if (!token) {
+      return false;
+    }
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/admin/dashboard`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      // If token is invalid, clear it
+      if (response.status === 401 || response.status === 403) {
+        authApi.logout();
+        return false;
+      }
+
+      return response.ok;
+    } catch (error) {
+      console.error('Token validation error:', error);
+      // On network error, assume token might be valid (don't log out)
+      // But return false to be safe
+      return false;
+    }
   },
 };
 
