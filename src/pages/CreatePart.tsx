@@ -315,11 +315,11 @@ export default function CreatePart() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       <div>
         <div className="flex items-center cursor-pointer hover:underline text-primary align-middle" onClick={() => navigate(-1)}>
           <ArrowLeft className="w-5 h-5 align-middle" />  
-          <h1 className="text-2xl font-bold text-foreground ml-2 hover:underline">Create Part</h1>
+          <h1 className="text-xl sm:text-2xl font-bold text-foreground ml-2 hover:underline">Create Part</h1>
         </div>
       </div>
 
@@ -331,7 +331,7 @@ export default function CreatePart() {
             <CardTitle>Details</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <Label htmlFor="manufacturer_id">Manufacturer *</Label>
                 <Combobox
@@ -412,7 +412,7 @@ export default function CreatePart() {
               <Label htmlFor="description">Description</Label>
               <Textarea id="description" value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} />
             </div>
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               <div>
                 <Label htmlFor="original_price">Original Price *</Label>
                 <Input id="original_price" type="number" step="0.01" min="0" value={form.original_price} onChange={(e) => setForm({ ...form, original_price: e.target.value })} required />
@@ -427,7 +427,7 @@ export default function CreatePart() {
               </div>
             </div>
 
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               <div>
                 <Label htmlFor="weight">Weight (Kg)</Label>
                 <Input id="weight" type="number" step="0.01" min="0" value={form.weight} onChange={(e) => setForm({ ...form, weight: e.target.value })} />
@@ -458,7 +458,7 @@ export default function CreatePart() {
                 </div>
 
                 {imagePreviews.length > 0 && (
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
                     {imagePreviews.map((preview, index) => (
                       <div key={index} className="relative group">
                         <img
@@ -526,7 +526,7 @@ export default function CreatePart() {
 
             <div className="flex gap-2">
 
-              <Button className="w-full md:w-1/4 bg-gradient-primary mb-2" onClick={onSubmit as any} disabled={submitting}>
+              <Button className="w-full sm:w-auto sm:min-w-[120px] bg-gradient-primary mb-2" onClick={onSubmit as any} disabled={submitting}>
                 {submitting ? (<><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Creating...</>) : (<>Create</>)}
               </Button>
             </div>

@@ -116,7 +116,7 @@ export default function Categories() {
       key: "id",
       label: "Actions",
       render: (_: any, category: Category) => (
-        <div className="flex gap-2">
+        <div className="flex flex-col sm:flex-row gap-2">
           <Button
             variant="outline"
             size="sm"
@@ -137,15 +137,15 @@ export default function Categories() {
   ];
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
+    <div className="space-y-4 sm:space-y-6">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-foreground">Categories</h1>
-          <p className="text-muted-foreground">Manage product categories</p>
+          <h1 className="text-2xl sm:text-3xl font-bold text-foreground">Categories</h1>
+          <p className="text-sm sm:text-base text-muted-foreground">Manage product categories</p>
         </div>
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>
-            <Button className="bg-gradient-primary">
+            <Button className="bg-gradient-primary w-full sm:w-auto">
               <Plus className="mr-2 h-4 w-4" />
               Add Category
             </Button>

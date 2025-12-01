@@ -208,7 +208,7 @@ export default function Partners() {
       key: "id",
       label: "Actions",
       render: (_: any, partner: Partner) => (
-        <div className="flex gap-2">
+        <div className="flex flex-col sm:flex-row gap-2">
           <Button
             variant="outline"
             size="sm"
@@ -229,23 +229,23 @@ export default function Partners() {
   ];
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
+    <div className="space-y-4 sm:space-y-6">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-foreground">Partners</h1>
-          <p className="text-muted-foreground">Manage business partners</p>
+          <h1 className="text-2xl sm:text-3xl font-bold text-foreground">Partners</h1>
+          <p className="text-sm sm:text-base text-muted-foreground">Manage business partners</p>
         </div>
         <Dialog open={isDialogOpen} onOpenChange={(open) => {
           setIsDialogOpen(open);
           if (!open) resetForm();
         }}>
           <DialogTrigger asChild>
-            <Button className="bg-gradient-primary">
+            <Button className="bg-gradient-primary w-full sm:w-auto">
               <Plus className="mr-2 h-4 w-4" />
               Add Partner
             </Button>
           </DialogTrigger>
-          <DialogContent className="max-h-[90vh] overflow-y-auto">
+          <DialogContent className="max-h-[90vh] overflow-y-auto max-w-[95vw] sm:max-w-md">
             <DialogHeader>
               <DialogTitle>
                 {editingPartner ? "Edit Partner" : "Add New Partner"}

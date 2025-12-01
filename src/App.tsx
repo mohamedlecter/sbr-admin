@@ -135,11 +135,11 @@ const App = () => {
                     <div className="flex min-h-screen w-full bg-background">
                       <AdminSidebar />
                       <div className="flex flex-1 flex-col">
-                        <header className="sticky top-0 z-10 flex h-16 items-center gap-4 border-b border-border bg-card/50 px-6 backdrop-blur-sm">
+                        <header className="sticky top-0 z-10 flex h-16 items-center gap-4 border-b border-border bg-card/50 px-4 sm:px-6 backdrop-blur-sm">
                           <SidebarTrigger />
                           <div className="flex-1" />
                         </header>
-                        <main className="flex-1 p-6">
+                        <main className="flex-1 p-4 sm:p-6">
                           <Routes>
                             <Route path="/" element={<Dashboard />} />
                             <Route path="/users" element={<Users />} />

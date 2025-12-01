@@ -333,11 +333,11 @@ export default function Products() {
         const imgSrc = getImageUrl(item.image_url);
         console.log("imgSrc", imgSrc);
         return (
-          <div className="flex items-center gap-3">
-            <img src={imgSrc} alt={item.name} className="h-20 w-20 rounded object-cover border border-border" />
+          <div className="flex items-center gap-2 sm:gap-3">
+            <img src={imgSrc} alt={item.name} className="h-12 w-12 sm:h-20 sm:w-20 rounded object-cover border border-border flex-shrink-0" />
             <button
               onClick={() => navigate(item.type === "part" ? `/products/parts/${item.id}` : `/products/merchandise/${item.id}`)}
-              className="text-primary hover:underline text-left"
+              className="text-primary hover:underline text-left text-sm sm:text-base"
             >
               {item.name}
             </button>
@@ -393,7 +393,7 @@ export default function Products() {
           }
         };
         return (
-          <div className="flex gap-2">
+          <div className="flex flex-col sm:flex-row gap-2">
             <Button variant="outline" size="sm" onClick={() => navigate(item.type === "part" ? `/products/parts/${item.id}` : `/products/merchandise/${item.id}`)}>Edit</Button>
             <Button variant="destructive" size="sm" onClick={onDelete}>Delete</Button>
           </div>
@@ -403,20 +403,20 @@ export default function Products() {
   ];
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
+    <div className="space-y-4 sm:space-y-6">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-foreground">Products</h1>
-          <p className="text-muted-foreground">Manage parts and merchandise</p>
+          <h1 className="text-2xl sm:text-3xl font-bold text-foreground">Products</h1>
+          <p className="text-sm sm:text-base text-muted-foreground">Manage parts and merchandise</p>
         </div>
         <Dialog open={isPartDialogOpen} onOpenChange={setIsPartDialogOpen}>
           <DialogTrigger asChild>
-            <Button className="bg-gradient-primary" onClick={() => navigate('/products/parts/new')}>
+            <Button className="bg-gradient-primary w-full sm:w-auto" onClick={() => navigate('/products/parts/new')}>
               <Plus className="mr-2 h-4 w-4" />
               Create Part
             </Button>
           </DialogTrigger>
-          <DialogContent className="max-h-[90vh] overflow-y-auto">
+          <DialogContent className="max-h-[90vh] overflow-y-auto max-w-[95vw] sm:max-w-md">
             <DialogHeader>
               <DialogTitle>Create New Part</DialogTitle>
             </DialogHeader>
@@ -525,7 +525,7 @@ export default function Products() {
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="original_price">Original Price *</Label>
                   <Input
@@ -556,7 +556,7 @@ export default function Products() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="quantity">Quantity *</Label>
                   <Input
@@ -640,7 +640,7 @@ export default function Products() {
         </Dialog>
       </div>
 
-      <div className="flex gap-4">
+      <div className="flex flex-col sm:flex-row gap-4">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
@@ -651,7 +651,7 @@ export default function Products() {
           />
         </div>
         <Select value={type} onValueChange={setType}>
-          <SelectTrigger className="w-[200px]">
+          <SelectTrigger className="w-full sm:w-[200px]">
             <SelectValue placeholder="Filter by type" />
           </SelectTrigger>
           <SelectContent>

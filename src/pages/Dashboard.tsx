@@ -248,14 +248,14 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-4 sm:space-y-6 lg:space-y-8">
       <div>
-        <h1 className="text-3xl font-bold text-foreground">Dashboard</h1>
-        <p className="text-muted-foreground">Welcome to SBR Admin Panel</p>
+        <h1 className="text-2xl sm:text-3xl font-bold text-foreground">Dashboard</h1>
+        <p className="text-sm sm:text-base text-muted-foreground">Welcome to SBR Admin Panel</p>
       </div>
 
       {/* Statistics Cards with Growth Metrics */}
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Users</CardTitle>
@@ -320,7 +320,7 @@ export default function Dashboard() {
       </div>
 
       {/* Revenue Trends and Top Products Side by Side */}
-      <div className="grid gap-6 md:grid-cols-2">
+      <div className="grid gap-4 sm:gap-6 grid-cols-1 lg:grid-cols-2">
         {/* Revenue Trends Chart */}
         {revenueTrendChartData.length > 0 ? (
           <Card>
@@ -332,7 +332,7 @@ export default function Dashboard() {
               <CardDescription className="text-xs">Daily revenue and orders over time</CardDescription>
             </CardHeader>
             <CardContent className="pt-0">
-              <ChartContainer config={revenueTrendConfig} className="h-[250px]">
+              <ChartContainer config={revenueTrendConfig} className="h-[200px] sm:h-[250px]">
                 <LineChart data={revenueTrendChartData} margin={{ top: 5, right: 10, left: 0, bottom: 5 }}>
                   <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
                   <XAxis 
@@ -426,7 +426,7 @@ export default function Dashboard() {
           </CardHeader>
           <CardContent className="pt-0">
             {topProductsChartData.length > 0 ? (
-              <ChartContainer config={{ sold: { label: "Units Sold", color: "hsl(var(--primary))" } }} className="h-[250px]">
+              <ChartContainer config={{ sold: { label: "Units Sold", color: "hsl(var(--primary))" } }} className="h-[200px] sm:h-[250px]">
                 <BarChart data={topProductsChartData} margin={{ top: 5, right: 10, left: 0, bottom: 40 }}>
                   <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
                   <XAxis 
@@ -473,7 +473,7 @@ export default function Dashboard() {
       </div>
 
       {/* Charts Grid */}
-      <div className="grid gap-6 md:grid-cols-2">
+      <div className="grid gap-4 sm:gap-6 grid-cols-1 lg:grid-cols-2">
         {/* Order Status Distribution */}
         <Card>
           <CardHeader>
@@ -485,7 +485,7 @@ export default function Dashboard() {
           </CardHeader>
           <CardContent>
             {orderStatusChartData.length > 0 ? (
-              <ChartContainer config={{}} className="h-[300px]">
+              <ChartContainer config={{}} className="h-[250px] sm:h-[300px]">
                 <PieChart>
                   <Pie
                     data={orderStatusChartData}
@@ -543,7 +543,7 @@ export default function Dashboard() {
           </CardHeader>
           <CardContent>
             {paymentStatusChartData.length > 0 ? (
-              <ChartContainer config={{}} className="h-[300px]">
+              <ChartContainer config={{}} className="h-[250px] sm:h-[300px]">
                 <PieChart>
                   <Pie
                     data={paymentStatusChartData}
@@ -594,7 +594,7 @@ export default function Dashboard() {
 
       {/* Recent Orders */}
       <div className="space-y-4">
-        <h2 className="text-2xl font-bold text-foreground">Recent Orders</h2>
+        <h2 className="text-xl sm:text-2xl font-bold text-foreground">Recent Orders</h2>
         <DataTable
           columns={orderColumns}
           data={recentOrders}

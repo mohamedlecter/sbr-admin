@@ -186,11 +186,11 @@ export default function EditPart() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       <div>
         <div className="flex items-center cursor-pointer hover:underline text-primary" onClick={() => navigate(-1)}>
-          <ArrowLeftIcon className="w-6 h-6" />  
-          <h1 className="text-3xl font-bold text-foreground ml-2 hover:underline">Edit Part</h1>
+          <ArrowLeftIcon className="w-5 h-5 sm:w-6 sm:h-6" />  
+          <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-foreground ml-2 hover:underline">Edit Part</h1>
         </div>
       </div>
       <div className="grid grid-cols-1 gap-6">
@@ -199,7 +199,7 @@ export default function EditPart() {
             <CardTitle>Details</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="name">Name</Label>
                   <Input id="name" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required />
@@ -209,7 +209,7 @@ export default function EditPart() {
                   <Textarea id="description" value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} />
                 </div>
             </div>
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
 
               <div>
                 <Label htmlFor="manufacturer_id">Manufacturer</Label>
@@ -250,7 +250,7 @@ export default function EditPart() {
                 )}
               </div>
             </div>
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               <div>
                 <Label htmlFor="original_price">Original Price</Label>
                 <Input id="original_price" type="number" step="0.01" value={form.original_price} onChange={(e) => setForm({ ...form, original_price: e.target.value })} />
@@ -264,7 +264,7 @@ export default function EditPart() {
                 <Input id="quantity" type="number" value={form.quantity} onChange={(e) => setForm({ ...form, quantity: e.target.value })} />
               </div>
             </div>
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
                 <Label htmlFor="color_options">Color Options (comma-separated)</Label>
                 <Input id="color_options" value={form.color_options} onChange={(e) => setForm({ ...form, color_options: e.target.value })} />
@@ -298,7 +298,7 @@ export default function EditPart() {
                   </div>
 
                   {imagePreviews.length > 0 && (
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
                       {imagePreviews.map((preview, index) => (
                         <div key={index} className="relative group">
                           <img
@@ -323,7 +323,7 @@ export default function EditPart() {
               </div>
             </div>
             <div className="flex gap-2">
-              <Button className="w-full md:w-1/4 bg-gradient-primary mb-2" onClick={onSubmit as any} disabled={saving}>
+              <Button className="w-full sm:w-auto sm:min-w-[120px] bg-gradient-primary mb-2" onClick={onSubmit as any} disabled={saving}>
                 {saving ? (<><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Saving...</>) : (<>Save</>)}
               </Button>
             </div>

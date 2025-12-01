@@ -57,7 +57,7 @@ export default function UserDetails() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       <div className="flex items-center justify-between">
         <button className="inline-flex items-center text-sm text-primary hover:underline" onClick={() => navigate(-1)}>
           <ArrowLeft className="mr-2 h-4 w-4" /> Back
@@ -65,13 +65,13 @@ export default function UserDetails() {
         <div className="w-10" />
       </div>
 
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+      <div className="grid grid-cols-1 gap-4 sm:gap-6 lg:grid-cols-3">
         <Card className="lg:col-span-2">
           <CardHeader>
-            <CardTitle>User Info</CardTitle>
+            <CardTitle className="text-lg sm:text-xl">User Info</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div className="space-y-1">
                 <div className="text-muted-foreground">Email</div>
                 <div className="font-medium">{user.email}</div>

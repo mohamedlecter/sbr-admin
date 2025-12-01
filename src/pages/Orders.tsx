@@ -104,15 +104,15 @@ export default function Orders() {
   ];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       <div>
-        <h1 className="text-3xl font-bold text-foreground">Orders</h1>
-        <p className="text-muted-foreground">Track and manage customer orders</p>
+        <h1 className="text-2xl sm:text-3xl font-bold text-foreground">Orders</h1>
+        <p className="text-sm sm:text-base text-muted-foreground">Track and manage customer orders</p>
       </div>
 
       <div className="flex gap-4">
         <Select value={status} onValueChange={setStatus}>
-          <SelectTrigger className="w-[200px]">
+          <SelectTrigger className="w-full sm:w-[200px]">
             <SelectValue placeholder="Filter by status" />
           </SelectTrigger>
           <SelectContent>

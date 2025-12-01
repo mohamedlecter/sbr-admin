@@ -82,15 +82,15 @@ export default function Ambassadors() {
   ];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       <div>
-        <h1 className="text-3xl font-bold text-foreground">Ambassadors</h1>
-        <p className="text-muted-foreground">Manage ambassador applications</p>
+        <h1 className="text-2xl sm:text-3xl font-bold text-foreground">Ambassadors</h1>
+        <p className="text-sm sm:text-base text-muted-foreground">Manage ambassador applications</p>
       </div>
 
       <div className="flex gap-4">
         <Select value={status} onValueChange={setStatus}>
-          <SelectTrigger className="w-[200px]">
+          <SelectTrigger className="w-full sm:w-[200px]">
             <SelectValue placeholder="Filter by status" />
           </SelectTrigger>
           <SelectContent>
