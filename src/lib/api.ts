@@ -206,7 +206,7 @@ export const productsApi = {
   getAll: (params: PaginationParams & { 
     type?: string; 
     search?: string; 
-    brand_id?: string; 
+    manufacturer_id?: string; 
     category_id?: string 
   }) => {
     const queryParams = new URLSearchParams();
@@ -255,21 +255,21 @@ export const merchandiseApi = {
     }),
 };
 
-// Brands APIs
-export const brandsApi = {
-  getAll: () => apiRequest('/products/brands'),
+// Manufacturers APIs
+export const manufacturersApi = {
+  getAll: () => apiRequest('/products/manufacturers'),
   create: (formData: FormData) =>
-    apiRequest('/admin/brands', {
+    apiRequest('/admin/manufacturers', {
       method: 'POST',
       body: formData,
     }),
   update: (id: string, formData: FormData) =>
-    apiRequest(`/admin/brands/${id}`, {
+    apiRequest(`/admin/manufacturers/${id}`, {
       method: 'PUT',
       body: formData,
     }),
   delete: (id: string) =>
-    apiRequest(`/admin/brands/${id}`, {
+    apiRequest(`/admin/manufacturers/${id}`, {
       method: 'DELETE',
     }),
 };

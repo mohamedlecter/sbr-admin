@@ -29,7 +29,7 @@ const navItems = [
   { title: "Users", url: "/users", icon: Users },
   { title: "Orders", url: "/orders", icon: ShoppingCart },
   { title: "Products", url: "/products", icon: Package },
-  { title: "Brands", url: "/brands", icon: Tag },
+  { title: "Manufacturers", url: "/manufacturers", icon: Tag },
   { title: "Categories", url: "/categories", icon: FolderTree },
   { title: "Partners", url: "/partners", icon: Handshake },
   { title: "Feedback", url: "/feedback", icon: MessageSquare },

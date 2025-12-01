@@ -82,8 +82,8 @@ export function Combobox({
             <CommandGroup>
               {allowCustom && onCreateNew && (
                 <CommandItem
-                  value="create new brand"
-                  keywords={["create", "new", "brand"]}
+                  value="create new manufacturer"
+                  keywords={["create", "new", "manufacturer"]}
                   onSelect={() => {
                     onCreateNew();
                     setOpen(false);

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { DataTable } from "@/components/DataTable";
-import { brandsApi } from "@/lib/api";
+import { manufacturersApi } from "@/lib/api";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Plus, Pencil, Trash2 } from "lucide-react";
@@ -15,7 +15,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 
-interface Brand {
+interface Manufacturer {
   id: string;
   name: string;
   description: string;
@@ -23,11 +23,11 @@ interface Brand {
   created_at: string;
 }
 
-export default function Brands() {
-  const [brands, setBrands] = useState<Brand[]>([]);
+export default function Manufacturers() {
+  const [manufacturers, setManufacturers] = useState<Manufacturer[]>([]);
   const [loading, setLoading] = useState(true);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [editingBrand, setEditingBrand] = useState<Brand | null>(null);
+  const [editingManufacturer, setEditingManufacturer] = useState<Manufacturer | null>(null);
   const [formData, setFormData] = useState({
     name: "",
     description: "",
@@ -35,27 +35,27 @@ export default function Brands() {
   });
 
   useEffect(() => {
-    loadBrands();
+    loadManufacturers();
   }, []);
 
-  const loadBrands = async () => {
+  const loadManufacturers = async () => {
     setLoading(true);
-    const { data, error } = await brandsApi.getAll();
+    const { data, error } = await manufacturersApi.getAll();
 
     if (error) {
-      toast.error("Failed to load brands");
+      toast.error("Failed to load manufacturers");
       setLoading(false);
       return;
     }
 
     if (data) {
-      // Handle both array response and object with brands property
-      const brandsData = Array.isArray(data) 
+      // Handle both array response and object with manufacturers property
+      const manufacturersData = Array.isArray(data) 
         ? data 
-        : (data as any).brands || (data as any).data || [];
-      setBrands(brandsData);
+        : (data as any).manufacturers || (data as any).data || [];
+        setManufacturers(manufacturersData);
     } else {
-      setBrands([]);
+      setManufacturers([]);
     }
     setLoading(false);
   };
@@ -63,47 +63,47 @@ export default function Brands() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    const { error } = editingBrand
-      ? await brandsApi.update(editingBrand.id, new FormData(formData as any))
-      : await brandsApi.create(new FormData(formData as any));
+    const { error } = editingManufacturer
+      ? await manufacturersApi.update(editingManufacturer.id, new FormData(formData as any))
+      : await manufacturersApi.create(new FormData(formData as any));
 
     if (error) {
       toast.error(error);
       return;
     }
 
-    toast.success(`Brand ${editingBrand ? "updated" : "created"} successfully`);
+    toast.success(`Manufacturer ${editingManufacturer ? "updated" : "created"} successfully`);
     setIsDialogOpen(false);
-    setEditingBrand(null);
+    setEditingManufacturer(null);
     setFormData({ name: "", description: "", logo_url: "" });
-    loadBrands();
+    loadManufacturers();
   };
 
-  const handleEdit = (brand: Brand) => {
-    setEditingBrand(brand);
+  const handleEdit = (manufacturer: Manufacturer) => {
+    setEditingManufacturer(manufacturer);
     setFormData({
-      name: brand.name,
-      description: brand.description || "",
-      logo_url: brand.logo_url || "",
+      name: manufacturer.name,
+      description: manufacturer.description || "",
+      logo_url: manufacturer.logo_url || "",
     });
     setIsDialogOpen(true);
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm("Are you sure you want to delete this brand?")) return;
+    if (!confirm("Are you sure you want to delete this manufacturer?")) return;
 
-    const { error } = await brandsApi.delete(id);
+    const { error } = await manufacturersApi.delete(id);
 
     if (error) {
       toast.error(error);
       return;
     }
 
-    toast.success("Brand deleted successfully");
-    loadBrands();
+    toast.success("Manufacturer deleted successfully");
+    loadManufacturers();
   };
 
-  const brandColumns = [
+  const manufacturerColumns = [
     { key: "name", label: "Name" },
     { key: "description", label: "Description" },
     {
@@ -114,19 +114,19 @@ export default function Brands() {
     {
       key: "id",
       label: "Actions",
-      render: (_: any, brand: Brand) => (
+      render: (_: any, manufacturer: Manufacturer) => (
         <div className="flex gap-2">
           <Button
             variant="outline"
             size="sm"
-            onClick={() => handleEdit(brand)}
+            onClick={() => handleEdit(manufacturer)}
           >
             <Pencil className="h-4 w-4" />
           </Button>
           <Button
             variant="outline"
             size="sm"
-            onClick={() => handleDelete(brand.id)}
+            onClick={() => handleDelete(manufacturer.id)}
           >
             <Trash2 className="h-4 w-4" />
           </Button>
@@ -139,25 +139,25 @@ export default function Brands() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-foreground">Brands</h1>
-          <p className="text-muted-foreground">Manage motorcycle brands</p>
+          <h1 className="text-3xl font-bold text-foreground">Manufacturers</h1>
+          <p className="text-muted-foreground">Manage motorcycle manufacturers</p>
         </div>
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>
             <Button className="bg-gradient-primary">
               <Plus className="mr-2 h-4 w-4" />
-              Add Brand
+              Add Manufacturer
             </Button>
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>
               <DialogTitle>
-                {editingBrand ? "Edit Brand" : "Add New Brand"}
+                {editingManufacturer ? "Edit Manufacturer" : "Add New Manufacturer"}
               </DialogTitle>
             </DialogHeader>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <Label htmlFor="name">Brand Name</Label>
+                <Label htmlFor="name">Manufacturer Name</Label>
                 <Input
                   id="name"
                   value={formData.name}
@@ -188,7 +188,7 @@ export default function Brands() {
                 />
               </div>
               <Button type="submit" className="w-full bg-gradient-primary">
-                {editingBrand ? "Update" : "Create"} Brand
+                {editingManufacturer ? "Update" : "Create"} Manufacturer
               </Button>
             </form>
           </DialogContent>
@@ -200,7 +200,7 @@ export default function Brands() {
           <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
         </div>
       ) : (
-        <DataTable columns={brandColumns} data={brands} />
+        <DataTable columns={manufacturerColumns} data={manufacturers} />
       )}
     </div>
   );

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { brandsApi, categoriesApi, partsApi, getImageUrl } from "@/lib/api";
+import { manufacturersApi, categoriesApi, partsApi, getImageUrl } from "@/lib/api";
 import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -10,7 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ArrowLeftIcon, Loader2, Upload, X } from "lucide-react";
 import { Select, SelectValue, SelectItem, SelectContent, SelectTrigger } from "@/components/ui/select";
 
-interface Brand { id: string; name: string }
+interface Manufacturer { id: string; name: string }
 interface Category { id: string; name: string }
 
 export default function EditPart() {
@@ -19,7 +19,7 @@ export default function EditPart() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [form, setForm] = useState<any>({
-    brand_id: "",
+    manufacturer_id: "",
     category_id: "",
     name: "",
     description: "",
@@ -30,9 +30,9 @@ export default function EditPart() {
     color_options: "",
     compatibility: "",
   });
-  const [brands, setBrands] = useState<Brand[]>([]);
+  const [manufacturers, setManufacturers] = useState<Manufacturer[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
-  const [newBrandName, setNewBrandName] = useState("");
+  const [newManufacturerName, setNewManufacturerName] = useState("");
   const [newCategoryName, setNewCategoryName] = useState("");
   const [imageFiles, setImageFiles] = useState<File[]>([]);
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
@@ -41,9 +41,9 @@ export default function EditPart() {
   useEffect(() => {
     const load = async () => {
       if (!id) return;
-      const [partsResult, brandsResult, categoriesResult] = await Promise.all([
+      const [partsResult, manufacturersResult, categoriesResult] = await Promise.all([
         partsApi.getOne(id),
-        brandsApi.getAll(),
+        manufacturersApi.getAll(),
         categoriesApi.getAll(),
       ]);
 
@@ -69,11 +69,11 @@ export default function EditPart() {
         color_options: Array.isArray(p.part.color_options) ? p.part.color_options.join(", ") : p.part.color_options || "",
         compatibility: Array.isArray(p.part.compatibility) ? p.part.compatibility.join(", ") : p.part.compatibility || "",
       });      
-      if (brandsResult.data) {
-        const brandsData = Array.isArray(brandsResult.data)
-          ? brandsResult.data
-          : (brandsResult.data as any).brands || (brandsResult.data as any).data || [];
-        setBrands(brandsData);
+      if (manufacturersResult.data) {
+        const manufacturersData = Array.isArray(manufacturersResult.data)
+          ? manufacturersResult.data
+          : (manufacturersResult.data as any).manufacturers || (manufacturersResult.data as any).data || [];
+        setManufacturers(manufacturersData);
       }
       if (categoriesResult.data) {
         const categoriesData = Array.isArray(categoriesResult.data)
@@ -212,21 +212,21 @@ export default function EditPart() {
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
 
               <div>
-                <Label htmlFor="brand_id">Brand</Label>
-                <Select value={form.brand_id} onValueChange={(v) => setForm({ ...form, brand_id: v })}>
+                <Label htmlFor="manufacturer_id">Manufacturer</Label>
+                <Select value={form.manufacturer_id} onValueChange={(v) => setForm({ ...form, manufacturer_id: v })}>
                   <SelectTrigger>
-                    <SelectValue placeholder="Select brand" />
+                    <SelectValue placeholder="Select manufacturer" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="new">Create New Brand</SelectItem>
-                    {brands.map((b) => (
-                      <SelectItem value={b.id} key={b.id}>{b.name}</SelectItem>
+                    <SelectItem value="new">Create New Manufacturer</SelectItem>
+                    {manufacturers.map((m) => (
+                      <SelectItem value={m.id} key={m.id}>{m.name}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
-                {form.brand_id === "new" && (
+                {form.manufacturer_id === "new" && (
                   <div className="mt-3 grid grid-cols-1 gap-3">
-                    <Input placeholder="Brand name" value={newBrandName} onChange={(e) => setNewBrandName(e.target.value)} />
+                    <Input placeholder="Manufacturer name" value={newManufacturerName} onChange={(e) => setNewManufacturerName(e.target.value)} />
                   </div>
                 )}
               </div>

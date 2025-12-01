@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { DataTable } from "@/components/DataTable";
-import { productsApi, partsApi, merchandiseApi, brandsApi, categoriesApi, getImageUrl } from "@/lib/api";
+import { productsApi, partsApi, merchandiseApi, manufacturersApi, categoriesApi, getImageUrl } from "@/lib/api";
 import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -32,12 +32,12 @@ interface ProductRow {
   merch_price?: number;
   quantity: number;
   is_active: boolean | number;
-  brand_name?: string;
+  manufacturer_name?: string;
   category_name?: string;
   image_url?: string;
 }
 
-interface Brand {
+interface Manufacturer {
   id: string;
   name: string;
 }
@@ -56,11 +56,11 @@ export default function Products() {
   const [type, setType] = useState<string>("all");
   const [page, setPage] = useState(1);
   const [isPartDialogOpen, setIsPartDialogOpen] = useState(false);
-  const [brands, setBrands] = useState<Brand[]>([]);
+  const [manufacturers, setManufacturers] = useState<Manufacturer[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [creatingPart, setCreatingPart] = useState(false);
   const [partFormData, setPartFormData] = useState({
-    brand_id: "",
+    manufacturer_id: "",
     category_id: "",
     name: "",
     description: "",
@@ -72,8 +72,8 @@ export default function Products() {
     color_options: "",
     compatibility: "",
   });
-  const [newBrandName, setNewBrandName] = useState("");
-  const [newBrandDescription, setNewBrandDescription] = useState("");
+  const [newManufacturerName, setNewManufacturerName] = useState("");
+  const [newManufacturerDescription, setNewManufacturerDescription] = useState("");
   const [newCategoryName, setNewCategoryName] = useState("");
   const [newCategoryDescription, setNewCategoryDescription] = useState("");
 
@@ -83,21 +83,21 @@ export default function Products() {
 
   useEffect(() => {
     if (isPartDialogOpen) {
-      loadBrandsAndCategories();
+      loadManufacturersAndCategories();
     }
   }, [isPartDialogOpen]);
 
-  const loadBrandsAndCategories = async () => {
-    const [brandsResult, categoriesResult] = await Promise.all([
-      brandsApi.getAll(),
+  const loadManufacturersAndCategories = async () => {
+    const [manufacturersResult, categoriesResult] = await Promise.all([
+      manufacturersApi.getAll(),
       categoriesApi.getAll(),
     ]);
 
-    if (brandsResult.data) {
-      const brandsData = Array.isArray(brandsResult.data)
-        ? brandsResult.data
-        : (brandsResult.data as any).brands || (brandsResult.data as any).data || [];
-      setBrands(brandsData);
+    if (manufacturersResult.data) {
+      const manufacturersData = Array.isArray(manufacturersResult.data)
+        ? manufacturersResult.data
+        : (manufacturersResult.data as any).manufacturers || (manufacturersResult.data as any).data || [];
+      setManufacturers(manufacturersData);
     }
 
     if (categoriesResult.data) {
@@ -133,7 +133,7 @@ export default function Products() {
             price: p.selling_price ? parseFloat(p.selling_price) : undefined,
             quantity: p.quantity ?? 0,
             is_active: p.is_active ?? 0,
-            brand_name: p.brand_name,
+            manufacturer_name: p.manufacturer_name,
             category_name: p.category_name,
             image_url: Array.isArray(p.images) && p.images.length > 0 ? p.images[0] : undefined,
           }))
@@ -165,48 +165,48 @@ export default function Products() {
     setCreatingPart(true);
 
     try {
-      let brandId = partFormData.brand_id;
+      let manufacturerId = partFormData.manufacturer_id;
       let categoryId = partFormData.category_id;
 
-      // Create brand if "new" is selected
-      if (brandId === "new") {
-        if (!newBrandName.trim() || !newBrandDescription.trim()) {
-          toast.error("Brand name and description are required");
+      // Create manufacturer if "new" is selected
+      if (manufacturerId === "new") {
+        if (!newManufacturerName.trim() || !newManufacturerDescription.trim()) {
+          toast.error("Manufacturer name and description are required");
           setCreatingPart(false);
           return;
         }
-        const { data: brandData, error: brandError } = await brandsApi.create(new FormData({
-          name: newBrandName,
-          description: newBrandDescription,
+        const { data: manufacturerData, error: manufacturerError } = await manufacturersApi.create(new FormData({
+          name: newManufacturerName,
+          description: newManufacturerDescription,
         } as any));
-        if (brandError || !brandData) {
-          toast.error(brandError || "Failed to create brand");
+        if (manufacturerError || !manufacturerData) {
+          toast.error(manufacturerError || "Failed to create manufacturer");
           setCreatingPart(false);
           return;
         }
         // Extract ID from response - handle different response structures
-        // The apiRequest wraps responses, so brandData is the direct response from backend
-        let newBrandId = (brandData as any).id;
-        if (!newBrandId && (brandData as any).brand) {
-          newBrandId = (brandData as any).brand.id;
+        // The apiRequest wraps responses, so manufacturerData is the direct response from backend
+        let newManufacturerId = (manufacturerData as any).id;
+        if (!newManufacturerId && (manufacturerData as any).manufacturer) {
+          newManufacturerId = (manufacturerData as any).manufacturer.id;
         }
-        if (!newBrandId && (brandData as any).data) {
-          newBrandId = (brandData as any).data.id;
+        if (!newManufacturerId && (manufacturerData as any).data) {
+          newManufacturerId = (manufacturerData as any).data.id;
         }
         
-        if (!newBrandId) {
-          console.error("Brand creation response structure:", JSON.stringify(brandData, null, 2));
-          toast.error("Failed to get brand ID from response. Check console for details.");
+        if (!newManufacturerId) {
+          console.error("Manufacturer creation response structure:", JSON.stringify(manufacturerData, null, 2));
+          toast.error("Failed to get manufacturer ID from response. Check console for details.");
           setCreatingPart(false);
           return;
         }
-        brandId = newBrandId;
-        // Update form state to use the new brand ID
-        setPartFormData({ ...partFormData, brand_id: brandId });
-        setNewBrandName("");
-        setNewBrandDescription("");
-        toast.success("Brand created successfully");
-        await loadBrandsAndCategories();
+        manufacturerId = newManufacturerId;
+        // Update form state to use the new manufacturer ID
+        setPartFormData({ ...partFormData, manufacturer_id: manufacturerId });
+        setNewManufacturerName("");
+        setNewManufacturerDescription("");
+        toast.success("Manufacturer created successfully");
+        await loadManufacturersAndCategories();
       }
 
       // Create category if "new" is selected
@@ -247,7 +247,7 @@ export default function Products() {
         setNewCategoryName("");
         setNewCategoryDescription("");
         toast.success("Category created successfully");
-        await loadBrandsAndCategories();
+        await loadManufacturersAndCategories();
       }
 
       // Parse arrays from comma-separated strings
@@ -262,8 +262,8 @@ export default function Products() {
         : [];
 
       // Validate that we have valid UUIDs
-      if (!brandId || brandId === "new") {
-        toast.error("Invalid brand ID. Please select a brand.");
+      if (!manufacturerId || manufacturerId === "new") {
+        toast.error("Invalid manufacturer ID. Please select a manufacturer.");
         setCreatingPart(false);
         return;
       }
@@ -275,7 +275,7 @@ export default function Products() {
 
       // Create the part
       const partData = {
-        brand_id: brandId,
+        manufacturer_id: manufacturerId,
         category_id: categoryId,
         name: partFormData.name,
         description: partFormData.description || undefined,
@@ -299,7 +299,7 @@ export default function Products() {
       toast.success("Part created successfully");
       setIsPartDialogOpen(false);
       setPartFormData({
-        brand_id: "",
+        manufacturer_id: "",
         category_id: "",
         name: "",
         description: "",
@@ -311,8 +311,8 @@ export default function Products() {
         color_options: "",
         compatibility: "",
       });
-      setNewBrandName("");
-      setNewBrandDescription("");
+      setNewManufacturerName("");
+      setNewManufacturerDescription("");
       setNewCategoryName("");
       setNewCategoryDescription("");
       loadProducts();
@@ -356,7 +356,7 @@ export default function Products() {
         </span>
       ),
     },
-    { key: "brand_name", label: "Brand", render: (v: string, item: ProductRow) => item.type === "part" ? (v || "-") : "-" },
+    { key: "manufacturer_name", label: "Manufacturer", render: (v: string, item: ProductRow) => item.type === "part" ? (v || "-") : "-" },
     { key: "category_name", label: "Category", render: (v: string, item: ProductRow) => item.type === "part" ? (v || "-") : "-" },
     {
       key: "price",
@@ -422,38 +422,38 @@ export default function Products() {
             </DialogHeader>
             <form onSubmit={handlePartSubmit} className="space-y-4">
               <div>
-                <Label htmlFor="brand_id">Brand *</Label>
+                <Label htmlFor="manufacturer_id">Manufacturer *</Label>
                 <Select
-                  value={partFormData.brand_id}
+                  value={partFormData.manufacturer_id}
                   onValueChange={(value) =>
-                    setPartFormData({ ...partFormData, brand_id: value })
+                    setPartFormData({ ...partFormData, manufacturer_id: value })
                   }
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder="Select brand" />
+                    <SelectValue placeholder="Select manufacturer" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="new">Create New Brand</SelectItem>
-                    {brands.map((brand) => (
-                      <SelectItem key={brand.id} value={brand.id}>
-                        {brand.name}
+                    <SelectItem value="new">Create New Manufacturer</SelectItem>
+                    {manufacturers.map((manufacturer) => (
+                      <SelectItem key={manufacturer.id} value={manufacturer.id}>
+                        {manufacturer.name}
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
-                {partFormData.brand_id === "new" && (
+                {partFormData.manufacturer_id === "new" && (
                   <>
                   <Input
-                    placeholder="Enter brand name"
-                    value={newBrandName}
-                    onChange={(e) => setNewBrandName(e.target.value)}
+                    placeholder="Enter manufacturer name"
+                    value={newManufacturerName}
+                    onChange={(e) => setNewManufacturerName(e.target.value)}
                     className="mt-2"
                     required
                   />
                 <Input
-                  placeholder="Create brnad description"
-                  value={newBrandDescription}
-                  onChange={(e) => setNewBrandDescription(e.target.value)}
+                  placeholder="Create manufacturer description"
+                  value={newManufacturerDescription}
+                  onChange={(e) => setNewManufacturerDescription(e.target.value)}
                   className="mt-2"
                   required
                   />

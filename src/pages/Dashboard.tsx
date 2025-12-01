@@ -29,7 +29,7 @@ interface RecentOrder {
 
 interface TopProduct {
   name: string;
-  brand_name: string;
+  manufacturer_name: string;
   total_sold: string;
 }
 
@@ -197,7 +197,7 @@ export default function Dashboard() {
     .map((product) => ({
       name: product.name.length > 18 ? product.name.substring(0, 15) + "..." : product.name,
       fullName: product.name,
-      brand: product.brand_name,
+      manufacturer: product.manufacturer_name,
       sold: Number(product.total_sold),
     }));
 
@@ -450,7 +450,7 @@ export default function Dashboard() {
                         return (
                           <div className="rounded-lg border bg-background p-2 shadow-lg text-xs">
                             <div className="font-medium text-sm">{data.fullName}</div>
-                            <div className="text-muted-foreground">Brand: {data.brand}</div>
+                            <div className="text-muted-foreground">Manufacturer: {data.manufacturer}</div>
                             <div className="font-semibold text-primary">
                               Units Sold: {data.sold}
                             </div>

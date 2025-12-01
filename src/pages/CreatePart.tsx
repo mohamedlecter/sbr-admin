@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { partsApi, brandsApi, categoriesApi, modelsApi } from "@/lib/api";
+import { partsApi, manufacturersApi, categoriesApi, modelsApi } from "@/lib/api";
 import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -12,7 +12,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Loader2, Plus, ArrowLeft, ArrowLeftIcon, X, Upload } from "lucide-react";
 
-interface Brand { id: string; name: string }
+interface Manufacturer { id: string; name: string }
 interface Category { id: string; name: string }
 interface Model { id: string; name: string; make_name?: string }
 
@@ -20,14 +20,14 @@ export default function CreatePart() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
-  const [brands, setBrands] = useState<Brand[]>([]);
+  const [manufacturers, setManufacturers] = useState<Manufacturer[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [models, setModels] = useState<Model[]>([]);
   const [loadingModels, setLoadingModels] = useState(false);
 
 
   const [form, setForm] = useState({
-    brand_id: "",
+    manufacturer_id: "",
     category_id: "",
     name: "",
     description: "",
@@ -39,7 +39,7 @@ export default function CreatePart() {
     compatibility: "",
   });
 
-  const [newBrandName, setNewBrandName] = useState("");
+  const [newManufacturerName, setNewManufacturerName] = useState("");
   const [newCategoryName, setNewCategoryName] = useState("");
   const [imageFiles, setImageFiles] = useState<File[]>([]);
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
@@ -48,16 +48,16 @@ export default function CreatePart() {
 
   useEffect(() => {
     const load = async () => {
-      const [brandsResult, categoriesResult] = await Promise.all([
-        brandsApi.getAll(),
+      const [manufacturersResult, categoriesResult] = await Promise.all([
+        manufacturersApi.getAll(),
         categoriesApi.getAll(),
       ]);
 
-      if (brandsResult.data) {
-        const brandsData = Array.isArray(brandsResult.data)
-          ? brandsResult.data
-          : (brandsResult.data as any).brands || (brandsResult.data as any).data || [];
-        setBrands(brandsData);
+      if (manufacturersResult.data) {
+        const manufacturersData = Array.isArray(manufacturersResult.data)
+          ? manufacturersResult.data
+          : (manufacturersResult.data as any).manufacturers || (manufacturersResult.data as any).data || [];
+        setManufacturers(manufacturersData);
       }
       if (categoriesResult.data) {
         const categoriesData = Array.isArray(categoriesResult.data)
@@ -106,18 +106,18 @@ export default function CreatePart() {
     setImagePreviews(prev => prev.filter((_, i) => i !== index));
   };
 
-  // Fetch models when brand changes
+  // Fetch models when manufacturer changes
   useEffect(() => {
     const fetchModels = async () => {
-      if (!form.brand_id || form.brand_id === "new") {
+      if (!form.manufacturer_id || form.manufacturer_id === "new") {
         setModels([]);
         setSelectedModelIds([]);
         setSelectedCompatibilityModelIds([]);
         return;
       }
 
-      const selectedBrand = brands.find(b => b.id === form.brand_id);
-      if (!selectedBrand || !selectedBrand.name) {
+      const selectedManufacturer = manufacturers.find(m => m.id === form.manufacturer_id);
+      if (!selectedManufacturer || !selectedManufacturer.name) {
         setModels([]);
         setSelectedModelIds([]);
         setSelectedCompatibilityModelIds([]);
@@ -125,7 +125,7 @@ export default function CreatePart() {
       }
 
       setLoadingModels(true);
-      const { data, error } = await modelsApi.getByMakeName(selectedBrand.name);
+      const { data, error } = await modelsApi.getByMakeName(selectedManufacturer.name);
       
       if (error) {
         toast.error(`Failed to load models: ${error}`);
@@ -147,7 +147,7 @@ export default function CreatePart() {
     }, 300);
 
     return () => clearTimeout(timeoutId);
-  }, [form.brand_id, brands]);
+  }, [form.manufacturer_id, manufacturers]);
 
   const handleModelToggle = (modelId: string) => {
     setSelectedModelIds(prev => {
@@ -171,40 +171,40 @@ export default function CreatePart() {
   };
 
 
-  const ensureBrandAndCategory = async () => {
-    let brandId = form.brand_id;
+  const ensureManufacturerAndCategory = async () => {
+    let manufacturerId = form.manufacturer_id;
     let categoryId = form.category_id;
 
-    if (brandId === "new") {
-      if (!newBrandName.trim()) {
-        toast.error("Brand name is required");
+    if (manufacturerId === "new") {
+      if (!newManufacturerName.trim()) {
+        toast.error("Manufacturer name is required");
         return { ok: false };
       }
-      // Create FormData for brand
-      const brandFormData = new FormData();
-      brandFormData.append('name', newBrandName);
+      // Create FormData for manufacturer
+      const manufacturerFormData = new FormData();
+      manufacturerFormData.append('name', newManufacturerName);
       
-      const { data: brandData, error } = await brandsApi.create(brandFormData);
-      if (error || !brandData) {
-        toast.error(error || "Failed to create brand");
+      const { data: manufacturerData, error } = await manufacturersApi.create(manufacturerFormData);
+      if (error || !manufacturerData) {
+        toast.error(error || "Failed to create manufacturer");
         return { ok: false };
       }
-      let newBrandId = (brandData as any).id || (brandData as any).brand?.id || (brandData as any).data?.id;
-      if (!newBrandId) {
-        toast.error("Failed to get brand ID from response");
+      let newManufacturerId = (manufacturerData as any).id || (manufacturerData as any).manufacturer?.id || (manufacturerData as any).data?.id;
+      if (!newManufacturerId) {
+        toast.error("Failed to get manufacturer ID from response");
         return { ok: false };
       }
-      brandId = newBrandId;
-      setForm((f) => ({ ...f, brand_id: newBrandId }));
-      setNewBrandName("");
-      const refreshed = await brandsApi.getAll();
+      manufacturerId = newManufacturerId;
+      setForm((f) => ({ ...f, manufacturer_id: newManufacturerId }));
+      setNewManufacturerName("");
+      const refreshed = await manufacturersApi.getAll();
       if (refreshed.data) {
-        const brandsData = Array.isArray(refreshed.data)
+        const manufacturersData = Array.isArray(refreshed.data)
           ? refreshed.data
-          : (refreshed.data as any).brands || (refreshed.data as any).data || [];
-        setBrands(brandsData);
+          : (refreshed.data as any).manufacturers || (refreshed.data as any).data || [];
+        setManufacturers(manufacturersData);
       }
-      toast.success("Brand created");
+      toast.success("Manufacturer created");
     }
 
     if (categoryId === "new") {
@@ -235,21 +235,21 @@ export default function CreatePart() {
       toast.success("Category created");
     }
 
-    return { ok: true, brandId, categoryId } as const;
+    return { ok: true, manufacturerId, categoryId } as const;
   };
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitting(true);
 
-    const ensured = await ensureBrandAndCategory();
+    const ensured = await ensureManufacturerAndCategory();
     if (!ensured.ok) {
       setSubmitting(false);
       return;
     }
 
-    if (!ensured.brandId || !ensured.categoryId) {
-      toast.error("Please select brand and category");
+    if (!ensured.manufacturerId || !ensured.categoryId) {
+      toast.error("Please select manufacturer and category");
       setSubmitting(false);
       return;
     }
@@ -258,7 +258,7 @@ export default function CreatePart() {
 
     // Create FormData
     const formData = new FormData();
-    formData.append('brand_id', ensured.brandId);
+    formData.append('manufacturer_id', ensured.manufacturerId);
     formData.append('category_id', ensured.categoryId);
     formData.append('name', form.name);
     if (form.description) formData.append('description', form.description);
@@ -333,20 +333,20 @@ export default function CreatePart() {
           <CardContent className="space-y-4">
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <div>
-                <Label htmlFor="brand_id">Brand *</Label>
+                <Label htmlFor="manufacturer_id">Manufacturer *</Label>
                 <Combobox
-                  options={brands.map((b) => ({ value: b.id, label: b.name }))}
-                  value={form.brand_id}
-                  onValueChange={(v) => setForm({ ...form, brand_id: v })}
-                  placeholder="Select brand"
-                  searchPlaceholder="Search brands..."
-                  emptyText="No brand found."
+                  options={manufacturers.map((m) => ({ value: m.id, label: m.name }))}
+                  value={form.manufacturer_id}
+                  onValueChange={(v) => setForm({ ...form, manufacturer_id: v })}
+                  placeholder="Select manufacturer"
+                  searchPlaceholder="Search manufacturers..."
+                  emptyText="No manufacturer found."
                   allowCustom={true}
-                  onCreateNew={() => setForm({ ...form, brand_id: "new" })}
+                  onCreateNew={() => setForm({ ...form, manufacturer_id: "new" })}
                 />
-                {form.brand_id === "new" && (
+                {form.manufacturer_id === "new" && (
                   <div className="mt-3 grid grid-cols-1 gap-3">
-                    <Input placeholder="Brand name" value={newBrandName} onChange={(e) => setNewBrandName(e.target.value)} />
+                    <Input placeholder="Manufacturer name" value={newManufacturerName} onChange={(e) => setNewManufacturerName(e.target.value)} />
                   </div>
                 )}
               </div>
